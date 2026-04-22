@@ -1,18 +1,6 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const getSslConfig = () => {
-  if (process.env.CA_CERT) {
-    return { ca: Buffer.from(process.env.CA_CERT) };
-  }
-  if (process.env.DB_SSL === 'true') {
-    const fs = require('fs');
-    const path = require('path');
-    return { ca: fs.readFileSync(path.join(__dirname, '../../ca.pem')) };
-  }
-  return false;
-};
-
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT || 3306,
@@ -21,7 +9,11 @@ const pool = mysql.createPool({
   database: process.env.DB_NAME,
   waitForConnections: true,
   connectionLimit: 10,
-  ssl: getSslConfig(),
+  ssl: process.env.CA_CERT ? {
+    ca: Buffer.from(process.env.CA_CERT, 'base64')
+  } : process.env.DB_SSL === 'true' ? {
+    rejectUnauthorized: false
+  } : false,
 });
 
 module.exports = pool;
