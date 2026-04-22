@@ -25,6 +25,19 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
+app.get('/test-turno', async (req, res) => {
+  try {
+    const pool = require('./src/config/db');
+    const [rows] = await pool.execute(
+      'SELECT hora, COUNT(*) as ocupados FROM turnos WHERE fecha = ? AND estado = "reservado" GROUP BY hora',
+      ['2026-04-22']
+    );
+    res.json({ status: 'OK', rows });
+  } catch (err) {
+    res.json({ status: 'ERROR', message: err.message, code: err.code });
+  }
+});
+
 app.use((err, req, res, next) => {
   console.error('ERROR:', err.message);
   console.error('STACK:', err.stack);
