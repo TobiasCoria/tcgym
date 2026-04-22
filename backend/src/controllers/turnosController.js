@@ -1,3 +1,4 @@
+const { enviarConfirmacionTurno, enviarCancelacionTurno } = require('../services/emailService');
 const pool = require('../config/db');
 
 const getTurnos = async (req, res) => {
@@ -49,6 +50,12 @@ const crearTurno = async (req, res) => {
       'INSERT INTO turnos (usuario_id, fecha, hora) VALUES (?, ?, ?)',
       [req.usuario.id, fecha, hora]
     );
+    // Obtener datos del usuario para el email
+const [usuarioData] = await pool.execute(
+  'SELECT nombre, email FROM usuarios WHERE id = ?',
+  [req.usuario.id]
+);
+await enviarConfirmacionTurno(usuarioData[0], { fecha, hora });
     res.status(201).json({ mensaje: 'Turno reservado correctamente' });
   } catch {
     res.status(500).json({ error: 'Error al crear turno' });
@@ -62,6 +69,11 @@ const cancelarTurno = async (req, res) => {
       'UPDATE turnos SET estado = "cancelado" WHERE id = ? AND usuario_id = ?',
       [id, req.usuario.id]
     );
+    const [turnoData] = await pool.execute('SELECT * FROM turnos WHERE id = ?', [id]);
+const [usuarioData] = await pool.execute('SELECT nombre, email FROM usuarios WHERE id = ?', [req.usuario.id]);
+if (turnoData[0] && usuarioData[0]) {
+  await enviarCancelacionTurno(usuarioData[0], turnoData[0]);
+}
     res.json({ mensaje: 'Turno cancelado' });
   } catch {
     res.status(500).json({ error: 'Error al cancelar turno' });
