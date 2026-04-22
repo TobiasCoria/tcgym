@@ -15,5 +15,21 @@ app.use('/api/usuarios', require('./src/routes/usuarios'));
 
 app.get('/', (req, res) => res.json({ mensaje: 'TCGym API funcionando' }));
 
+app.get('/test-db', async (req, res) => {
+  try {
+    const pool = require('./src/config/db');
+    const [rows] = await pool.execute('SELECT 1 as ok');
+    res.json({ status: 'OK', rows });
+  } catch (err) {
+    res.json({ status: 'ERROR', message: err.message, code: err.code });
+  }
+});
+
+app.use((err, req, res, next) => {
+  console.error('ERROR:', err.message);
+  console.error('STACK:', err.stack);
+  res.status(500).json({ error: err.message });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log('Servidor corriendo en puerto ' + PORT));
