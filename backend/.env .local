@@ -1,0 +1,7 @@
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=Tobiascoria271102
+DB_NAME=gymapp
+JWT_SECRET=gymapp_secret_key_2024
+PORT=3001
+RESEND_API_KEY=re_6SUXYm4z_8uoqp3UqEEyGtYL3PabATkKP
