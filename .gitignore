@@ -1,0 +1,9 @@
+# Backend
+backend/node_modules
+backend/.env
+backend/src/uploads/*
+!backend/src/uploads/.gitkeep
+
+# Frontend
+frontend/node_modules
+frontend/dist
