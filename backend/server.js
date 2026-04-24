@@ -15,26 +15,30 @@ app.use('/api/usuarios', require('./src/routes/usuarios'));
 
 app.get('/', (req, res) => res.json({ mensaje: 'TCGym API funcionando' }));
 
-app.get('/test-db', async (req, res) => {
-  try {
-    const pool = require('./src/config/db');
-    const [rows] = await pool.execute('SELECT 1 as ok');
-    res.json({ status: 'OK', rows });
-  } catch (err) {
-    res.json({ status: 'ERROR', message: err.message, code: err.code });
+app.get('/recordatorios', async (req, res) => {
+  const secret = req.headers['x-secret'];
+  if (secret !== process.env.CRON_SECRET) {
+    return res.status(401).json({ error: 'No autorizado' });
   }
-});
-
-app.get('/test-turno', async (req, res) => {
   try {
     const pool = require('./src/config/db');
-    const [rows] = await pool.execute(
-      'SELECT hora, COUNT(*) as ocupados FROM turnos WHERE fecha = ? AND estado = "reservado" GROUP BY hora',
-      ['2026-04-22']
+    const { enviarRecordatorio } = require('./src/services/emailService');
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    const fechaManana = manana.toISOString().split('T')[0];
+    const [turnos] = await pool.execute(
+      `SELECT t.*, u.nombre, u.email 
+       FROM turnos t 
+       JOIN usuarios u ON t.usuario_id = u.id 
+       WHERE t.fecha = ? AND t.estado = 'reservado'`,
+      [fechaManana]
     );
-    res.json({ status: 'OK', rows });
+    for (const turno of turnos) {
+      await enviarRecordatorio({ nombre: turno.nombre, email: turno.email }, turno);
+    }
+    res.json({ mensaje: `${turnos.length} recordatorios enviados` });
   } catch (err) {
-    res.json({ status: 'ERROR', message: err.message, code: err.code });
+    res.status(500).json({ error: err.message });
   }
 });
 
