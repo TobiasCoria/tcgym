@@ -80,4 +80,18 @@ const getDisponibilidad = async (req, res) => {
   }
 };
 
-module.exports = { getTurnos, getMisTurnos, crearTurno, cancelarTurno, getDisponibilidad };
+const marcarAsistencia = async (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+  try {
+    await pool.execute(
+      "UPDATE turnos SET estado = ? WHERE id = ?",
+      [estado, id]
+    );
+    res.json({ mensaje: 'Estado actualizado' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { getTurnos, getMisTurnos, crearTurno, cancelarTurno, getDisponibilidad, marcarAsistencia };

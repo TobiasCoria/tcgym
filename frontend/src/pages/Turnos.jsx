@@ -186,34 +186,35 @@ export default function Turnos() {
               </div>
             )}
             {misTurnos.map((turno, i) => (
-              <div
-                key={turno.id}
-                className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
-                style={{ animationDelay: `${i * 0.05}s` }}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <p className="text-white font-semibold text-sm capitalize">{fechaLegible(turno.fecha)}</p>
-                    <p className="text-white/40 text-xs mt-0.5">{turno.hora.slice(0,5)}hs</p>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                    turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' :
-                    turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' :
-                    'bg-red-500/15 text-red-400'
-                  }`}>
-                    {turno.estado}
-                  </span>
-                </div>
-                {turno.estado === 'reservado' && (
-                  <button
-                    onClick={() => handleCancelar(turno.id)}
-                    className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold py-2.5 rounded-xl transition-colors mt-1"
-                  >
-                    Cancelar turno
-                  </button>
-                )}
-              </div>
-            ))}
+  <div
+    key={turno.id}
+    className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4"
+    style={{ animationDelay: `${i * 0.05}s` }}
+  >
+    <div className="flex items-center justify-between mb-2">
+      <div>
+        <p className="text-white font-semibold text-sm capitalize">{fechaLegible(turno.fecha)}</p>
+        <p className="text-white/40 text-xs mt-0.5">{turno.hora.slice(0,5)}hs</p>
+      </div>
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+        turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' :
+        turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' :
+        'bg-red-500/15 text-red-400'
+      }`}>
+        {turno.estado === 'completado' ? '✓ Asistió' :
+         turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
+      </span>
+    </div>
+    {turno.estado === 'reservado' && (
+      <button
+        onClick={() => handleCancelar(turno.id)}
+        className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold py-2.5 rounded-xl transition-colors mt-1"
+      >
+        Cancelar turno
+      </button>
+    )}
+  </div>
+))}
           </div>
         )}
       </div>
