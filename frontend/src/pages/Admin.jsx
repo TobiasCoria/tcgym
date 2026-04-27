@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
-// 👉 IMPORTS CALENDARIO
+// 👉 FullCalendar
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -29,23 +29,21 @@ export default function Admin() {
       ]);
       setUsuarios(u.data);
       setTurnos(t.data);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setCargando(false);
-    }
+    } catch {}
+    finally { setCargando(false); }
   };
 
-  // 👉 EVENTOS PARA CALENDARIO
+  // 👉 EVENTOS CALENDARIO
   const eventos = turnos.map(t => ({
     title: `${t.nombre} ${t.apellido}`,
     date: t.fechaCompleta,
-    color:
+    backgroundColor:
       t.estado === 'reservado'
-        ? 'orange'
+        ? '#f97316'
         : t.estado === 'cancelado'
-        ? 'red'
-        : 'green'
+        ? '#ef4444'
+        : '#22c55e',
+    borderColor: 'transparent'
   }));
 
   const cancelarTurno = async (id) => {
@@ -70,13 +68,13 @@ export default function Admin() {
   const turnosHoy = turnos.filter(t => t.fecha?.split('T')[0] === hoy);
 
   return (
-    <div className="min-h-screen bg-[#0f1117] text-white">
+    <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
 
       {/* HEADER */}
       <div className="flex justify-between p-4 border-b border-white/10">
-        <h1 className="font-bold">Admin</h1>
+        <h1 className="font-bold">TCGYM Admin</h1>
         <button onClick={() => { logout(); navigate('/'); }}>
-          Logout
+          Salir
         </button>
       </div>
 
@@ -118,21 +116,24 @@ export default function Admin() {
             {seccion === 'turnos' && (
               <div>
 
-                {/* 👉 CALENDARIO */}
-                <div className="mb-6 bg-white/5 p-4 rounded-xl">
+                {/* 🔥 CALENDARIO PRO */}
+                <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-4 shadow-lg">
                   <FullCalendar
                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                     initialView="timeGridWeek"
                     events={eventos}
                     height="70vh"
+                    headerToolbar={{
+                      left: 'prev,next today',
+                      center: 'title',
+                      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    }}
                   />
                 </div>
 
-                {/* 👉 LISTA */}
-                <h2 className="mb-4">Turnos de hoy</h2>
-
+                {/* TABLA ORIGINAL */}
                 {turnosHoy.map(t => (
-                  <div key={t.id} className="mb-2 p-3 bg-white/5 rounded">
+                  <div key={t.id} className="mb-2 p-3 bg-white/5 rounded-xl">
                     <p>{t.nombre} {t.apellido}</p>
                     <p>{t.hora}</p>
                     <p>{t.estado}</p>
@@ -155,6 +156,36 @@ export default function Admin() {
           </>
         )}
       </div>
+
+      {/* 🎨 ESTILO DARK PARA CALENDARIO */}
+      <style>
+        {`
+          .fc {
+            color: white;
+          }
+          .fc-theme-standard td, 
+          .fc-theme-standard th {
+            border-color: rgba(255,255,255,0.08);
+          }
+          .fc-toolbar-title {
+            color: white;
+            font-weight: 600;
+          }
+          .fc-button {
+            background: rgba(255,255,255,0.05) !important;
+            border: none !important;
+            color: white !important;
+            border-radius: 10px !important;
+          }
+          .fc-button:hover {
+            background: rgba(249,115,22,0.2) !important;
+          }
+          .fc-button-active {
+            background: #f97316 !important;
+          }
+        `}
+      </style>
+
     </div>
   );
 }
