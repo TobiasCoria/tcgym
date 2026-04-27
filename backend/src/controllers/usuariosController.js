@@ -5,7 +5,13 @@ const multer = require('multer');
 const getUsuarios = async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      'SELECT id, nombre, apellido, email, documento, rol, peso, estatura, fecha_nacimiento, rutina_archivo, creado_en FROM usuarios'
+      `SELECT 
+        id, nombre, apellido, email, documento, rol, 
+        peso, estatura, fecha_nacimiento, 
+        rutina_archivo, 
+        foto_perfil,
+        creado_en 
+      FROM usuarios`
     );
     res.json(rows);
   } catch {
@@ -16,7 +22,13 @@ const getUsuarios = async (req, res) => {
 const getMiPerfil = async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      'SELECT id, nombre, apellido, email, documento, peso, estatura, fecha_nacimiento, rutina_archivo FROM usuarios WHERE id = ?',
+      `SELECT 
+        id, nombre, apellido, email, documento, 
+        peso, estatura, fecha_nacimiento, 
+        rutina_archivo,
+        foto_perfil
+      FROM usuarios 
+      WHERE id = ?`,
       [req.usuario.id]
     );
     res.json(rows[0]);
@@ -47,6 +59,8 @@ const eliminarUsuario = async (req, res) => {
     res.status(500).json({ error: 'Error al eliminar usuario' });
   }
 };
+
+// ================= RUTINA =================
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -88,6 +102,8 @@ const subirRutina = [
   }
 ];
 
+// ================= FOTO =================
+
 const storageFoto = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '../uploads'));
@@ -128,4 +144,11 @@ const subirFoto = [
   }
 ];
 
-module.exports = { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto };
+module.exports = { 
+  getUsuarios, 
+  getMiPerfil, 
+  actualizarPerfil, 
+  eliminarUsuario, 
+  subirRutina, 
+  subirFoto 
+};
