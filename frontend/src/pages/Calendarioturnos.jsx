@@ -25,9 +25,9 @@ export default function CalendarioTurnos() {
         backgroundColor: 
           turno.estado === 'completado' ? '#10b981' : 
           turno.estado === 'cancelado' ? '#ef4444' : '#f97316',
-        borderColor: 'transparent',
+        borderColor: turno.estado === 'reservado' ? '#fb923c' : 'transparent',
         textColor: '#ffffff',
-        classNames: ['mejor-celda'],
+        classNames: ['premium-event'],
       }));
 
       setEventos(turnosFormateados);
@@ -47,10 +47,11 @@ export default function CalendarioTurnos() {
     const nombre = info.event.title;
 
     if (estado === 'reservado') {
-      if (confirm(`📅 ${nombre}\n⏰ ${hora} hs\n\n¿Qué querés hacer?`)) {
+      const accion = window.confirm(`📅 ${nombre}\n⏰ ${hora} hs\nEstado: Reservado\n\n¿Qué deseas hacer?`);
+      if (accion) {
         if (confirm('¿Marcar como ASISTIÓ?')) {
           marcarAsistencia(info.event.id, 'completado');
-        } else if (confirm('¿Cancelar este turno?')) {
+        } else if (confirm('¿Cancelar turno?')) {
           cancelarTurno(info.event.id);
         }
       }
@@ -62,7 +63,7 @@ export default function CalendarioTurnos() {
   const marcarAsistencia = async (id, nuevoEstado) => {
     try {
       await api.patch(`/turnos/${id}/estado`, { estado: nuevoEstado });
-      alert('✅ Turno actualizado');
+      alert('✅ Turno marcado como completado');
       setRefrescar(!refrescar);
     } catch (err) {
       alert('Error al actualizar');
@@ -82,8 +83,8 @@ export default function CalendarioTurnos() {
   const handleDateSelect = (selectInfo) => {
     const fecha = selectInfo.startStr.split('T')[0];
     const hora = selectInfo.startStr.split('T')[1]?.slice(0, 5);
-    if (confirm(`¿Crear nuevo turno?\nFecha: ${fecha}\nHora: ${hora} hs`)) {
-      alert("Modal de creación de turno próximamente...");
+    if (confirm(`Crear nuevo turno?\n\nFecha: ${fecha}\nHora: ${hora} hs`)) {
+      alert("Próximamente modal completo para seleccionar usuario...");
     }
     selectInfo.view.calendar.unselect();
   };
@@ -98,24 +99,24 @@ export default function CalendarioTurnos() {
 
   return (
     <div className="bg-[#0a0c14] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-      {/* Header */}
-      <div className="px-6 py-5 border-b border-white/10 bg-black/40 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
-          <h2 className="text-2xl font-bold text-white">Calendario de Turnos</h2>
+      {/* Header Premium */}
+      <div className="px-8 py-6 border-b border-white/10 bg-black/60 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-4 h-4 bg-orange-500 rounded-full animate-pulse" />
+          <h2 className="text-3xl font-bold text-white tracking-tighter">Calendario de Turnos</h2>
         </div>
         <button
           onClick={() => setRefrescar(!refrescar)}
-          className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/50 rounded-2xl text-sm font-medium transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500 rounded-2xl text-sm font-medium transition-all active:scale-95"
         >
-          🔄 Actualizar
+          🔄 Actualizar Calendario
         </button>
       </div>
 
-      <div className="p-5 md:p-7">
+      <div className="p-6 md:p-8">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"           // Mejor vista para gimnasio
+          initialView="timeGridWeek"
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
@@ -138,22 +139,19 @@ export default function CalendarioTurnos() {
           }}
           eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
 
-          // === MEJORAS EN LAS CELDAS ===
-          dayCellClassNames="hover:bg-white/5 transition-colors"
-          dayHeaderClassNames="text-orange-400 font-medium text-sm"
-          slotLabelClassNames="text-white/60 text-xs"
-          
-          // Estilos para los eventos (celdas de turnos)
-          eventClassNames="mejor-celda text-sm font-medium rounded-xl shadow-sm overflow-hidden"
-          
-          // Efectos hover en eventos
+          // Mejoras avanzadas en celdas y eventos
+          dayCellClassNames="hover:bg-white/5 transition-colors duration-200"
+          dayHeaderClassNames="text-orange-400 font-semibold text-sm py-3"
+          slotLabelClassNames="text-white/70 text-xs font-medium"
+
+          // Estilos premium para los eventos
+          eventClassNames="premium-event text-sm font-semibold rounded-2xl shadow-md border border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+
           eventMouseEnter={(info) => {
-            info.el.style.transform = 'translateY(-3px)';
-            info.el.style.boxShadow = '0 15px 25px -5px rgba(249, 115, 22, 0.4)';
+            info.el.style.boxShadow = '0 20px 25px -5px rgb(249 115 22 / 0.5), 0 8px 10px -6px rgb(249 115 22 / 0.3)';
           }}
           eventMouseLeave={(info) => {
-            info.el.style.transform = 'translateY(0)';
-            info.el.style.boxShadow = 'none';
+            info.el.style.boxShadow = '0 4px 6px -1px rgb(0 0 0 / 0.1)';
           }}
         />
       </div>
