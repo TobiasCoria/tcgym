@@ -9,7 +9,7 @@ import api from '../services/api';
 export default function CalendarioTurnos() {
   const [eventos, setEventos] = useState([]);
   const [cargando, setCargando] = useState(true);
-  const [refrescar, setRefrescar] = useState(false); // Para refrescar después de acciones
+  const [refrescar, setRefrescar] = useState(false);
 
   const cargarTurnos = async () => {
     try {
@@ -21,19 +21,19 @@ export default function CalendarioTurnos() {
         extendedProps: {
           estado: turno.estado,
           hora: turno.hora,
-          usuarioId: turno.usuario_id,
         },
-        backgroundColor:
-          turno.estado === 'completado' ? '#22c55e' :
-          turno.estado === 'cancelado' ? '#ef4444' : '#f59e0b',
-        borderColor: 'transparent',
+        backgroundColor: 
+          turno.estado === 'completado' ? '#16a34a' :     // Verde más vibrante
+          turno.estado === 'cancelado' ? '#dc2626' :      // Rojo más intenso
+          '#ea580c',                                      // Naranja TCGYM más fuerte
+        borderColor: turno.estado === 'reservado' ? '#f97316' : 'transparent',
         textColor: '#ffffff',
-        classNames: ['custom-event'],
+        classNames: ['tcgym-event'],
       }));
 
       setEventos(turnosFormateados);
     } catch (err) {
-      console.error("Error al cargar turnos:", err);
+      console.error("Error cargando turnos:", err);
     } finally {
       setCargando(false);
     }
@@ -43,75 +43,77 @@ export default function CalendarioTurnos() {
     cargarTurnos();
   }, [refrescar]);
 
-  // Click en un turno → Mostrar opciones
   const handleEventClick = (info) => {
     const { estado, hora } = info.event.extendedProps;
     const nombre = info.event.title;
 
-    const accion = window.confirm(
-      `Turno: ${nombre}\nHora: ${hora}\nEstado: ${estado}\n\n¿Qué querés hacer?\n\n1 - Marcar como Asistió\n2 - Cancelar turno\n3 - Cerrar`
-    );
+    const mensaje = `📅 ${nombre}\n⏰ ${hora} hs\n📊 Estado: ${estado.toUpperCase()}\n\n¿Qué deseas hacer?`;
 
-    if (accion === null) return;
-
-    if (accion.toString().includes('1') || accion === true) {
-      if (estado !== 'completado') marcarAsistencia(info.event.id, 'completado');
-    } else if (accion.toString().includes('2')) {
-      if (estado !== 'cancelado') cancelarTurno(info.event.id);
+    if (window.confirm(mensaje)) {
+      if (estado === 'reservado') {
+        if (confirm('¿Marcar como ASISTIÓ?')) {
+          marcarAsistencia(info.event.id, 'completado');
+        } else if (confirm('¿Cancelar turno?')) {
+          cancelarTurno(info.event.id);
+        }
+      } else {
+        alert('Este turno ya está ' + estado);
+      }
     }
   };
 
   const marcarAsistencia = async (id, nuevoEstado) => {
-    if (!confirm('¿Marcar como asistió?')) return;
     try {
       await api.patch(`/turnos/${id}/estado`, { estado: nuevoEstado });
-      alert('Estado actualizado correctamente');
-      setRefrescar(!refrescar); // Refresca el calendario
+      alert('✅ Turno marcado como completado');
+      setRefrescar(!refrescar);
     } catch (err) {
-      alert('Error al actualizar');
+      alert('Error al actualizar estado');
     }
   };
 
   const cancelarTurno = async (id) => {
-    if (!confirm('¿Cancelar este turno?')) return;
     try {
       await api.patch(`/turnos/${id}/cancelar`);
-      alert('Turno cancelado');
+      alert('❌ Turno cancelado correctamente');
       setRefrescar(!refrescar);
     } catch (err) {
-      alert('Error al cancelar');
+      alert('Error al cancelar turno');
     }
   };
 
-  // Seleccionar horario → Crear turno (por ahora simple)
   const handleDateSelect = (selectInfo) => {
     const fecha = selectInfo.startStr.split('T')[0];
     const hora = selectInfo.startStr.split('T')[1]?.slice(0, 5);
 
-    if (confirm(`¿Crear un nuevo turno el ${fecha} a las ${hora}?`)) {
-      alert(`Funcionalidad de crear turno para ${fecha} ${hora}hs (próximamente con selector de usuario)`);
-      // En el futuro aquí abrirías un modal con lista de usuarios
+    if (confirm(`¿Crear nuevo turno?\n\nFecha: ${fecha}\nHora: ${hora} hs`)) {
+      alert(`✅ Turno programado para ${fecha} a las ${hora}hs\n\n(Modal de selección de usuario próximamente)`);
+      // Aquí más adelante abriremos un modal bonito
     }
-    selectInfo.view.calendar.unselect(); // Limpia la selección
+    selectInfo.view.calendar.unselect();
   };
 
   if (cargando) {
     return (
-      <div className="flex justify-center items-center py-20">
+      <div className="flex justify-center py-20">
         <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-xl">
-      <div className="p-5 border-b border-white/10 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Calendario de Turnos</h2>
+    <div className="bg-[#0f1117] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+      {/* Header del Calendario */}
+      <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-black/40">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
+          <h2 className="text-2xl font-bold tracking-tight text-white">Calendario de Turnos</h2>
+        </div>
         <button 
           onClick={() => setRefrescar(!refrescar)}
-          className="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/30 rounded-2xl text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
         >
-          Actualizar
+          🔄 Actualizar
         </button>
       </div>
 
@@ -139,13 +141,18 @@ export default function CalendarioTurnos() {
             week: 'Semana',
             day: 'Día'
           }}
-          eventTimeFormat={{
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
+          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
+          
+          // Mejores estilos y hover
+          eventClassNames="tcgym-event cursor-pointer transition-all duration-200"
+          eventMouseEnter={(info) => {
+            info.el.style.transform = 'translateY(-2px)';
+            info.el.style.boxShadow = '0 10px 15px -3px rgb(249 115 22 / 0.3)';
           }}
-          // Estilos personalizados vía CSS variables
-          eventClassNames="cursor-pointer hover:brightness-110 transition-all"
+          eventMouseLeave={(info) => {
+            info.el.style.transform = 'translateY(0)';
+            info.el.style.boxShadow = 'none';
+          }}
         />
       </div>
     </div>
