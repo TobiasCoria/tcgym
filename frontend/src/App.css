@@ -182,35 +182,3 @@
     border-right-color: var(--border);
   }
 }
-
-.fc {
-  color: white;
-}
-
-.fc-toolbar-title {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.fc-button {
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  color: white !important;
-  border-radius: 10px !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-}
-
-.fc-button:hover {
-  background: rgba(255,255,255,0.1) !important;
-}
-
-.fc-daygrid-day {
-  background: transparent;
-}
-
-.fc-daygrid-event {
-  border-radius: 6px;
-  padding: 2px 4px;
-  font-size: 11px;
-}

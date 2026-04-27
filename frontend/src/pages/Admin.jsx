@@ -2,9 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
 
 export default function Admin() {
   const [seccion, setSeccion] = useState('dashboard');
@@ -400,31 +397,6 @@ export default function Admin() {
           </div>
         )}
       </div>
-
-      <div className="mt-8 animate-fadeIn">
-  <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-3">
-    Calendario de turnos
-  </p>
-
-  <div className="bg-white/5 border border-white/8 rounded-2xl p-4">
-    <FullCalendar
-      plugins={[dayGridPlugin, timeGridPlugin]}
-      initialView="dayGridMonth"
-      events={eventos}
-      height="auto"
-      headerToolbar={{
-        left: 'prev,next today',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek'
-      }}
-      buttonText={{
-        today: 'Hoy',
-        month: 'Mes',
-        week: 'Semana'
-      }}
-    />
-  </div>
-</div>
 
       {/* Menú lateral mobile */}
       {menuAbierto && (
