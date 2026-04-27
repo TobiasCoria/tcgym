@@ -1,6 +1,9 @@
 const pool = require('../config/db');
 const path = require('path');
 const multer = require('multer');
+const fs = require('fs');
+
+// ================= USUARIOS =================
 
 const getUsuarios = async (req, res) => {
   try {
@@ -8,9 +11,7 @@ const getUsuarios = async (req, res) => {
       `SELECT 
         id, nombre, apellido, email, documento, rol, 
         peso, estatura, fecha_nacimiento, 
-        rutina_archivo, 
-        foto_perfil,
-        creado_en 
+        rutina_archivo, foto_perfil, creado_en 
       FROM usuarios`
     );
     res.json(rows);
@@ -25,8 +26,7 @@ const getMiPerfil = async (req, res) => {
       `SELECT 
         id, nombre, apellido, email, documento, 
         peso, estatura, fecha_nacimiento, 
-        rutina_archivo,
-        foto_perfil
+        rutina_archivo, foto_perfil
       FROM usuarios 
       WHERE id = ?`,
       [req.usuario.id]
@@ -77,25 +77,23 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     const permitidos = ['.pdf', '.xlsx', '.xls'];
     const ext = path.extname(file.originalname).toLowerCase();
-    if (permitidos.includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Formato no permitido'));
-    }
+    if (permitidos.includes(ext)) cb(null, true);
+    else cb(new Error('Formato no permitido'));
   },
-  limits: { fileSize: 10 * 1024 * 1024 },
 });
 
 const subirRutina = [
   upload.single('rutina'),
   async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No se recibio archivo' });
+
     try {
       await pool.execute(
         'UPDATE usuarios SET rutina_archivo = ? WHERE id = ?',
         [req.file.filename, req.usuario.id]
       );
-      res.json({ mensaje: 'Rutina subida correctamente', archivo: req.file.filename });
+
+      res.json({ archivo: req.file.filename });
     } catch {
       res.status(500).json({ error: 'Error al guardar rutina' });
     }
@@ -119,36 +117,50 @@ const uploadFoto = multer({
   fileFilter: (req, file, cb) => {
     const permitidos = ['.jpg', '.jpeg', '.png', '.webp'];
     const ext = path.extname(file.originalname).toLowerCase();
-    if (permitidos.includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Solo se permiten imágenes'));
-    }
+    if (permitidos.includes(ext)) cb(null, true);
+    else cb(new Error('Solo se permiten imágenes'));
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 const subirFoto = [
   uploadFoto.single('foto'),
   async (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'No se recibió imagen' });
+
     try {
+      // 🔎 buscar foto anterior
+      const [rows] = await pool.execute(
+        'SELECT foto_perfil FROM usuarios WHERE id = ?',
+        [req.usuario.id]
+      );
+
+      const fotoAnterior = rows[0]?.foto_perfil;
+
+      // 🗑️ borrar foto anterior
+      if (fotoAnterior) {
+        const ruta = path.join(__dirname, '../uploads', fotoAnterior);
+        fs.unlink(ruta, () => {}); // silencioso
+      }
+
+      // 💾 guardar nueva
       await pool.execute(
         'UPDATE usuarios SET foto_perfil = ? WHERE id = ?',
         [req.file.filename, req.usuario.id]
       );
-      res.json({ mensaje: 'Foto subida correctamente', foto: req.file.filename });
+
+      res.json({ foto: req.file.filename });
+
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
 ];
 
-module.exports = { 
-  getUsuarios, 
-  getMiPerfil, 
-  actualizarPerfil, 
-  eliminarUsuario, 
-  subirRutina, 
-  subirFoto 
+module.exports = {
+  getUsuarios,
+  getMiPerfil,
+  actualizarPerfil,
+  eliminarUsuario,
+  subirRutina,
+  subirFoto
 };

@@ -46,12 +46,19 @@ export default function MisDatos() {
       }
 
       if (fotoFile) {
-        const fd2 = new FormData();
-        fd2.append('foto', fotoFile);
-        await api.post('/usuarios/foto', fd2, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      }
+  const fd2 = new FormData();
+  fd2.append('foto', fotoFile);
+
+  const { data } = await api.post('/usuarios/foto', fd2, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  // 🔥 actualizar foto automáticamente
+  if (data.foto) {
+    setFoto(data.foto);
+    setFotoFile(null); // limpia preview
+  }
+}
 
       setGuardado(true);
       setArchivoFile(null);
