@@ -3,11 +3,16 @@ const pool = require('../config/db');
 const getTurnos = async (req, res) => {
   try {
     const [rows] = await pool.execute(`
-      SELECT t.*, u.nombre, u.apellido 
+      SELECT 
+        t.*, 
+        u.nombre, 
+        u.apellido,
+        CONCAT(t.fecha, 'T', t.hora) as fechaCompleta
       FROM turnos t 
       JOIN usuarios u ON t.usuario_id = u.id
       ORDER BY t.fecha, t.hora
     `);
+
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

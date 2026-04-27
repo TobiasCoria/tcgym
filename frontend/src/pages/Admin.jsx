@@ -14,6 +14,17 @@ export default function Admin() {
 
   useEffect(() => { cargarDatos(); }, []);
 
+  const eventos = turnos.map(t => ({
+  title: `${t.nombre} ${t.apellido}`,
+  date: t.fechaCompleta,
+  color:
+    t.estado === 'reservado'
+      ? 'orange'
+      : t.estado === 'cancelado'
+      ? 'red'
+      : 'green'
+}));
+
   const cargarDatos = async () => {
     setCargando(true);
     try {
