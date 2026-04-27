@@ -1,8 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto, cambiarContrasena } = require('../controllers/usuariosController');
-
-router.put('/contrasena', verificarToken, cambiarContrasena);
 
 const { 
   getUsuarios, 
@@ -10,10 +7,14 @@ const {
   actualizarPerfil, 
   eliminarUsuario, 
   subirRutina, 
-  subirFoto 
+  subirFoto,
+  cambiarContrasena
 } = require('../controllers/usuariosController');
 
 const { verificarToken, soloAdmin } = require('../middlewares/auth');
+
+// Cambiar contraseña
+router.put('/contrasena', verificarToken, cambiarContrasena);
 
 // Subir foto de perfil
 router.post('/foto', verificarToken, subirFoto);
