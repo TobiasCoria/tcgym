@@ -3,7 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+
 export default function MisDatos() {
+const [contrasenas, setContrasenas] = useState({ actual: '', nueva: '', confirmar: '' });
+const [exitoPass, setExitoPass] = useState('');
+const [errorPass, setErrorPass] = useState('');
+const [cargandoPass, setCargandoPass] = useState(false);
   const { usuario } = useAuth();
   const navigate = useNavigate();
   const [guardado, setGuardado] = useState(false);
@@ -91,6 +96,33 @@ export default function MisDatos() {
     : foto
     ? 'https://tcgym.onrender.com/uploads/' + foto
     : null;
+
+    const handleCambiarContrasena = async () => {
+  if (contrasenas.nueva !== contrasenas.confirmar) {
+    setErrorPass('Las contraseñas no coinciden');
+    return;
+  }
+  if (contrasenas.nueva.length < 6) {
+    setErrorPass('La nueva contraseña debe tener al menos 6 caracteres');
+    return;
+  }
+  setCargandoPass(true);
+  setErrorPass('');
+  setExitoPass('');
+  try {
+    await api.put('/usuarios/contrasena', {
+      contrasena_actual: contrasenas.actual,
+      contrasena_nueva: contrasenas.nueva,
+    });
+    setExitoPass('Contraseña actualizada correctamente');
+    setContrasenas({ actual: '', nueva: '', confirmar: '' });
+    setTimeout(() => setExitoPass(''), 3000);
+  } catch (err) {
+    setErrorPass(err.response?.data?.error || 'Error al cambiar contraseña');
+  } finally {
+    setCargandoPass(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
@@ -246,6 +278,51 @@ export default function MisDatos() {
             {error}
           </div>
         )}
+
+        <div className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4 space-y-3">
+  <p className="text-white/40 text-xs font-semibold uppercase tracking-widest">Cambiar contraseña</p>
+
+  <input
+    type="password"
+    placeholder="Contraseña actual"
+    value={contrasenas.actual}
+    onChange={(e) => setContrasenas({ ...contrasenas, actual: e.target.value })}
+    className="w-full bg-white/5 border border-white/10 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+  />
+  <input
+    type="password"
+    placeholder="Nueva contraseña"
+    value={contrasenas.nueva}
+    onChange={(e) => setContrasenas({ ...contrasenas, nueva: e.target.value })}
+    className="w-full bg-white/5 border border-white/10 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+  />
+  <input
+    type="password"
+    placeholder="Confirmar nueva contraseña"
+    value={contrasenas.confirmar}
+    onChange={(e) => setContrasenas({ ...contrasenas, confirmar: e.target.value })}
+    className="w-full bg-white/5 border border-white/10 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+  />
+
+  {errorPass && (
+    <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-xs font-medium">
+      {errorPass}
+    </div>
+  )}
+  {exitoPass && (
+    <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl px-4 py-3 text-xs font-medium">
+      {exitoPass}
+    </div>
+  )}
+
+  <button
+    onClick={handleCambiarContrasena}
+    disabled={cargandoPass || !contrasenas.actual || !contrasenas.nueva || !contrasenas.confirmar}
+    className="w-full bg-white/5 hover:bg-white/10 disabled:opacity-30 border border-white/10 hover:border-white/20 text-white font-semibold py-3 rounded-xl transition-all duration-200 text-sm"
+  >
+    {cargandoPass ? 'Cambiando...' : 'Cambiar contraseña'}
+  </button>
+</div>
 
         {/* BOTON */}
         <button

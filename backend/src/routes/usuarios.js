@@ -1,5 +1,8 @@
 const express = require('express');
 const router = express.Router();
+const { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto, cambiarContrasena } = require('../controllers/usuariosController');
+
+router.put('/contrasena', verificarToken, cambiarContrasena);
 
 const { 
   getUsuarios, 

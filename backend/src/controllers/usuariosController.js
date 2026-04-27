@@ -156,11 +156,24 @@ const subirFoto = [
   }
 ];
 
-module.exports = {
-  getUsuarios,
-  getMiPerfil,
-  actualizarPerfil,
-  eliminarUsuario,
-  subirRutina,
-  subirFoto
+const cambiarContrasena = async (req, res) => {
+  const { contrasena_actual, contrasena_nueva } = req.body;
+  try {
+    const [rows] = await pool.execute('SELECT contrasena FROM usuarios WHERE id = ?', [req.usuario.id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const bcrypt = require('bcryptjs');
+    const valida = await bcrypt.compare(contrasena_actual, rows[0].contrasena);
+    if (!valida) return res.status(400).json({ error: 'La contraseña actual es incorrecta' });
+
+    if (contrasena_nueva.length < 6) return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 6 caracteres' });
+
+    const hash = await bcrypt.hash(contrasena_nueva, 10);
+    await pool.execute('UPDATE usuarios SET contrasena = ? WHERE id = ?', [hash, req.usuario.id]);
+    res.json({ mensaje: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
+
+module.exports = { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto, cambiarContrasena };
