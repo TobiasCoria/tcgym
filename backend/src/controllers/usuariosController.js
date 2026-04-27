@@ -88,4 +88,44 @@ const subirRutina = [
   }
 ];
 
-module.exports = { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina };
+const storageFoto = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../uploads'));
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, 'foto_' + req.usuario.id + '_' + Date.now() + ext);
+  },
+});
+
+const uploadFoto = multer({
+  storage: storageFoto,
+  fileFilter: (req, file, cb) => {
+    const permitidos = ['.jpg', '.jpeg', '.png', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (permitidos.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes'));
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
+
+const subirFoto = [
+  uploadFoto.single('foto'),
+  async (req, res) => {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió imagen' });
+    try {
+      await pool.execute(
+        'UPDATE usuarios SET foto_perfil = ? WHERE id = ?',
+        [req.file.filename, req.usuario.id]
+      );
+      res.json({ mensaje: 'Foto subida correctamente', foto: req.file.filename });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+];
+
+module.exports = { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto };

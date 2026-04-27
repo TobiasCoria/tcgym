@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina } = require('../controllers/usuariosController');
 const { verificarToken, soloAdmin } = require('../middlewares/auth');
+const { getUsuarios, getMiPerfil, actualizarPerfil, eliminarUsuario, subirRutina, subirFoto } = require('../controllers/usuariosController');
 
+router.post('/foto', verificarToken, ...subirFoto);
 router.get('/', verificarToken, soloAdmin, getUsuarios);
 router.get('/perfil', verificarToken, getMiPerfil);
 router.put('/perfil', verificarToken, actualizarPerfil);
