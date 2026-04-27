@@ -1,4 +1,4 @@
-// components/CalendarioTurnos.jsx
+// components/CalendarioTurnos.jsx  (o donde lo tengas guardado)
 import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -23,12 +23,11 @@ export default function CalendarioTurnos() {
           hora: turno.hora,
         },
         backgroundColor: 
-          turno.estado === 'completado' ? '#16a34a' :     // Verde más vibrante
-          turno.estado === 'cancelado' ? '#dc2626' :      // Rojo más intenso
-          '#ea580c',                                      // Naranja TCGYM más fuerte
-        borderColor: turno.estado === 'reservado' ? '#f97316' : 'transparent',
+          turno.estado === 'completado' ? '#10b981' :
+          turno.estado === 'cancelado' ? '#ef4444' : '#f97316',
+        borderColor: '#00000020',
         textColor: '#ffffff',
-        classNames: ['tcgym-event'],
+        classNames: ['custom-event'],
       }));
 
       setEventos(turnosFormateados);
@@ -47,18 +46,17 @@ export default function CalendarioTurnos() {
     const { estado, hora } = info.event.extendedProps;
     const nombre = info.event.title;
 
-    const mensaje = `📅 ${nombre}\n⏰ ${hora} hs\n📊 Estado: ${estado.toUpperCase()}\n\n¿Qué deseas hacer?`;
-
-    if (window.confirm(mensaje)) {
-      if (estado === 'reservado') {
+    if (estado === 'reservado') {
+      const accion = confirm(`Turno: ${nombre}\nHora: ${hora} hs\nEstado: ${estado.toUpperCase()}\n\n¿Qué querés hacer?`);
+      if (accion) {
         if (confirm('¿Marcar como ASISTIÓ?')) {
           marcarAsistencia(info.event.id, 'completado');
         } else if (confirm('¿Cancelar turno?')) {
           cancelarTurno(info.event.id);
         }
-      } else {
-        alert('Este turno ya está ' + estado);
       }
+    } else {
+      alert(`Este turno ya está ${estado}`);
     }
   };
 
@@ -68,27 +66,26 @@ export default function CalendarioTurnos() {
       alert('✅ Turno marcado como completado');
       setRefrescar(!refrescar);
     } catch (err) {
-      alert('Error al actualizar estado');
+      alert('Error al actualizar');
     }
   };
 
   const cancelarTurno = async (id) => {
     try {
       await api.patch(`/turnos/${id}/cancelar`);
-      alert('❌ Turno cancelado correctamente');
+      alert('❌ Turno cancelado');
       setRefrescar(!refrescar);
     } catch (err) {
-      alert('Error al cancelar turno');
+      alert('Error al cancelar');
     }
   };
 
   const handleDateSelect = (selectInfo) => {
     const fecha = selectInfo.startStr.split('T')[0];
     const hora = selectInfo.startStr.split('T')[1]?.slice(0, 5);
-
-    if (confirm(`¿Crear nuevo turno?\n\nFecha: ${fecha}\nHora: ${hora} hs`)) {
-      alert(`✅ Turno programado para ${fecha} a las ${hora}hs\n\n(Modal de selección de usuario próximamente)`);
-      // Aquí más adelante abriremos un modal bonito
+    
+    if (confirm(`¿Crear nuevo turno el ${fecha} a las ${hora} hs?`)) {
+      alert("Funcionalidad de crear turno (con modal) próximamente");
     }
     selectInfo.view.calendar.unselect();
   };
@@ -102,16 +99,16 @@ export default function CalendarioTurnos() {
   }
 
   return (
-    <div className="bg-[#0f1117] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-      {/* Header del Calendario */}
-      <div className="px-6 py-5 border-b border-white/10 flex items-center justify-between bg-black/40">
+    <div className="bg-[#0a0c14] border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+      {/* Header bonito */}
+      <div className="px-6 py-5 border-b border-white/10 bg-black/40 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse" />
-          <h2 className="text-2xl font-bold tracking-tight text-white">Calendario de Turnos</h2>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Calendario de Turnos</h2>
         </div>
-        <button 
+        <button
           onClick={() => setRefrescar(!refrescar)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/30 rounded-2xl text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95"
+          className="px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500 rounded-2xl text-sm font-medium transition-all"
         >
           🔄 Actualizar
         </button>
@@ -120,7 +117,7 @@ export default function CalendarioTurnos() {
       <div className="p-4 md:p-6">
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView="timeGridWeek"
+          initialView="timeGridWeek"           // Vista semanal por defecto (más útil para turnos)
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
@@ -141,17 +138,18 @@ export default function CalendarioTurnos() {
             week: 'Semana',
             day: 'Día'
           }}
-          eventTimeFormat={{ hour: '2-digit', minute: '2-digit', hour12: false }}
-          
-          // Mejores estilos y hover
-          eventClassNames="tcgym-event cursor-pointer transition-all duration-200"
+          eventTimeFormat={{
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }}
+          eventClassNames="cursor-pointer font-medium"
           eventMouseEnter={(info) => {
-            info.el.style.transform = 'translateY(-2px)';
-            info.el.style.boxShadow = '0 10px 15px -3px rgb(249 115 22 / 0.3)';
+            info.el.style.transform = 'scale(1.03)';
+            info.el.style.zIndex = '10';
           }}
           eventMouseLeave={(info) => {
-            info.el.style.transform = 'translateY(0)';
-            info.el.style.boxShadow = 'none';
+            info.el.style.transform = 'scale(1)';
           }}
         />
       </div>
