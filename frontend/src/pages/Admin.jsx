@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import CalendarioTurnos from '../pages/Calendarioturnos';
 
 export default function Admin() {
   const [seccion, setSeccion] = useState('dashboard');
@@ -85,12 +86,13 @@ export default function Admin() {
         </div>
 
         {/* Tabs desktop */}
-        <div className="hidden md:flex gap-2">
-          {[
-            { key: 'dashboard', label: 'Dashboard' },
-            { key: 'usuarios', label: 'Usuarios (' + usuarios.length + ')' },
-            { key: 'turnos', label: 'Turnos (' + turnosHoy.length + ')' },
-          ].map((tab) => (
+<div className="hidden md:flex gap-2">
+  {[
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'usuarios', label: 'Usuarios (' + usuarios.length + ')' },
+    { key: 'turnos', label: 'Turnos (' + turnosHoy.length + ')' },
+    { key: 'calendario', label: 'Calendario' },        // ← AGREGADO
+  ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setSeccion(tab.key)}
@@ -111,13 +113,14 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Tabs mobile */}
-      <div className="md:hidden flex gap-2 px-6 py-4">
-        {[
-          { key: 'dashboard', label: 'Dashboard' },
-          { key: 'usuarios', label: 'Usuarios' },
-          { key: 'turnos', label: 'Turnos' },
-        ].map((tab) => (
+          {/* Tabs mobile */}
+<div className="md:hidden flex gap-2 px-6 py-4">
+  {[
+    { key: 'dashboard', label: 'Dashboard' },
+    { key: 'usuarios', label: 'Usuarios' },
+    { key: 'turnos', label: 'Turnos' },
+    { key: 'calendario', label: 'Calendario' },     // ← AGREGADO
+  ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setSeccion(tab.key)}
@@ -396,6 +399,15 @@ export default function Admin() {
             )}
           </div>
         )}
+                    {/* CALENDARIO */}
+            {seccion === 'calendario' && (
+              <div>
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">
+                  Calendario de Turnos
+                </p>
+                <CalendarioTurnos />
+              </div>
+            )}
       </div>
 
       {/* Menú lateral mobile */}
