@@ -34,7 +34,7 @@ export default function Login() {
       login(data.token, data.usuario);
       navigate('/home');
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al iniciar sesión');
+      setError(err.response?.data?.error || 'Credenciales incorrectas');
     } finally {
       setCargando(false);
     }
@@ -47,7 +47,7 @@ export default function Login() {
       return;
     }
     if (form.contrasena.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError('Mínimo 6 caracteres requeridos');
       return;
     }
     setCargando(true);
@@ -60,79 +60,82 @@ export default function Login() {
         documento: form.documento,
         contrasena: form.contrasena,
       });
-      setExito('¡Cuenta creada! Ya podés iniciar sesión.');
+      setExito('¡Cuenta creada con éxito!');
       setTimeout(() => {
         resetForm();
         setVista('login');
-      }, 2000);
+      }, 1500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Error al registrarse');
+      setError(err.response?.data?.error || 'Error en el registro');
     } finally {
       setCargando(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center p-6 overflow-hidden">
-
-      {/* Fondo */}
+    <div className="min-h-screen bg-[#05070a] flex items-center justify-center p-4 overflow-hidden selection:bg-orange-500/30">
+      
+      {/* Luces de Fondo (Ambience) */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-120px] left-[-80px] w-[400px] h-[400px] bg-orange-500/10 rounded-full blur-[100px] animate-glow-pulse" />
-        <div className="absolute bottom-[-100px] right-[-60px] w-[300px] h-[300px] bg-orange-500/8 rounded-full blur-[80px] animate-glow-pulse" style={{animationDelay:'1.2s'}} />
-        <div className="absolute top-[40%] left-[60%] w-[200px] h-[200px] bg-orange-500/5 rounded-full blur-[60px] animate-glow-pulse" style={{animationDelay:'0.6s'}} />
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orange-600/10 rounded-full blur-[120px] animate-glowPulse" />
+        <div className="absolute bottom-[-5%] right-[-5%] w-[400px] h-[400px] bg-orange-500/5 rounded-full blur-[100px] animate-glowPulse" style={{animationDelay:'1s'}} />
       </div>
 
-      <div className="relative w-full max-w-sm">
-
-        {/* Logo */}
-        <div className="text-center mb-8 animate-fadeIn">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-4 animate-float">
-            <img src="/logo.png" alt="TCgym" className="w-20 h-20 object-contain drop-shadow-2xl" />
+      <div className="relative w-full max-w-[400px]">
+        
+        {/* Branding */}
+        <header className="text-center mb-10 animate-fadeIn">
+          <div className="relative inline-block group">
+            <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full group-hover:bg-orange-500/40 transition-all duration-500" />
+            <img 
+              src="/logo.png" 
+              alt="TCgym" 
+              className="relative w-24 h-24 object-contain animate-float drop-shadow-[0_0_15px_rgba(249,115,22,0.3)]" 
+            />
           </div>
-          <h1 className="text-white text-2xl font-bold tracking-wide">TCGYM</h1>
-          <p className="text-white/30 text-sm mt-1 font-medium">
-            {vista === 'login' ? 'Ingresá a tu cuenta' : 'Creá tu cuenta'}
+          <h1 className="mt-4 text-white text-3xl font-black tracking-tighter italic">TC<span className="text-orange-500">GYM</span></h1>
+          <p className="text-white/40 text-xs font-bold uppercase tracking-[0.3em] mt-2">
+            {vista === 'login' ? 'Performance Center' : 'Únete a la Élite'}
           </p>
-        </div>
+        </header>
 
-        {/* Card */}
-        <div className="animate-fadeIn delay-100 bg-white/5 border border-white/8 rounded-2xl p-6">
-
-          {/* ── LOGIN ── */}
-          {vista === 'login' && (
-            <>
-              {/* Toggle email/documento */}
-              <div className="flex bg-white/5 rounded-xl p-1 mb-5">
+        {/* Form Container */}
+        <div className="animate-scaleIn shadow-2xl backdrop-blur-xl bg-white/[0.03] border border-white/10 rounded-[2.5rem] p-8 md:p-10">
+          
+          {vista === 'login' ? (
+            <div className="animate-fadeIn">
+              {/* Switcher Pro */}
+              <div className="flex bg-black/40 p-1 rounded-2xl mb-8">
                 {['email', 'documento'].map((op) => (
                   <button
                     key={op}
                     onClick={() => setModo(op)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                      modo === op ? 'bg-orange-500 text-white shadow' : 'text-white/40 hover:text-white/70'
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 ${
+                      modo === op ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-white/30 hover:text-white/60'
                     }`}
                   >
-                    {op === 'email' ? 'Email' : 'Documento'}
+                    {op}
                   </button>
                 ))}
               </div>
 
-              <form onSubmit={handleLogin} className="space-y-3">
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                    {modo === 'email' ? 'Email' : 'Documento'}
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="group">
+                  <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1 group-focus-within:text-orange-500 transition-colors">
+                    {modo === 'email' ? 'Correo Electrónico' : 'Documento de Identidad'}
                   </label>
                   <input
                     type={modo === 'email' ? 'email' : 'text'}
-                    placeholder={modo === 'email' ? 'tu@email.com' : '12345678'}
+                    placeholder={modo === 'email' ? 'ejemplo@gym.com' : 'DNI / CI'}
                     value={modo === 'email' ? form.email : form.documento}
                     onChange={(e) => setForm({ ...form, [modo]: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+                    className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 focus:bg-orange-500/[0.02] text-white rounded-2xl px-5 py-4 text-sm outline-none transition-all placeholder:text-white/10"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
+                <div className="group">
+                  <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1 group-focus-within:text-orange-500 transition-colors">
                     Contraseña
                   </label>
                   <input
@@ -140,158 +143,130 @@ export default function Login() {
                     placeholder="••••••••"
                     value={form.contrasena}
                     onChange={(e) => setForm({ ...form, contrasena: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+                    className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 focus:bg-orange-500/[0.02] text-white rounded-2xl px-5 py-4 text-sm outline-none transition-all placeholder:text-white/10"
                     required
                   />
                 </div>
 
-                {error && (
-                  <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-xs font-medium animate-scaleIn">
-                    {error}
-                  </div>
-                )}
+                {error && <p className="text-red-400 text-[11px] font-bold text-center animate-shake bg-red-500/10 py-2 rounded-lg border border-red-500/20">{error}</p>}
 
                 <button
                   type="submit"
                   disabled={cargando}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide"
+                  className="w-full relative overflow-hidden group bg-gradient-to-r from-orange-500 to-orange-600 disabled:opacity-50 text-white font-black py-4 rounded-2xl transition-all duration-300 hover:shadow-[0_8px_25px_-5px_rgba(249,115,22,0.5)] active:scale-95 text-xs uppercase tracking-[0.2em]"
                 >
-                  {cargando ? 'Ingresando...' : 'Ingresar'}
+                  <span className="relative z-10">{cargando ? 'Verificando...' : 'Entrar al Box'}</span>
                 </button>
               </form>
 
-              <div className="mt-5 pt-5 border-t border-white/8 text-center">
-                <p className="text-white/30 text-xs mb-3">¿No tenés cuenta?</p>
+              <footer className="mt-8 text-center">
                 <button
                   onClick={() => { resetForm(); setVista('registro'); }}
-                  className="text-orange-400 hover:text-orange-300 text-sm font-semibold transition-colors"
+                  className="text-white/30 hover:text-orange-400 text-[11px] font-bold uppercase tracking-widest transition-all"
                 >
-                  Crear cuenta →
+                  ¿No tienes cuenta? <span className="text-orange-500 ml-1">Regístrate</span>
                 </button>
-              </div>
-            </>
-          )}
-
-          {/* ── REGISTRO ── */}
-          {vista === 'registro' && (
-            <>
-              <form onSubmit={handleRegistro} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                      Nombre
-                    </label>
+              </footer>
+            </div>
+          ) : (
+            /* REGISTRO REDISEÑADO */
+            <div className="animate-fadeIn">
+              <form onSubmit={handleRegistro} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="group">
+                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Nombre</label>
                     <input
                       type="text"
                       placeholder="Juan"
                       value={form.nombre}
                       onChange={(e) => setForm({ ...form, nombre: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-3 py-3 text-sm outline-none transition-all placeholder-white/20"
+                      className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                      Apellido
-                    </label>
+                  <div className="group">
+                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Apellido</label>
                     <input
                       type="text"
                       placeholder="Pérez"
                       value={form.apellido}
                       onChange={(e) => setForm({ ...form, apellido: e.target.value })}
-                      className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-3 py-3 text-sm outline-none transition-all placeholder-white/20"
+                      className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
                       required
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                    Email
-                  </label>
+                <div className="group">
+                  <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Email</label>
                   <input
                     type="email"
-                    placeholder="tu@email.com"
+                    placeholder="atleta@tcgym.com"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+                    className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                    Documento
-                  </label>
+                <div className="group">
+                  <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Documento</label>
                   <input
                     type="text"
-                    placeholder="12345678"
+                    placeholder="DNI o Pasaporte"
                     value={form.documento}
                     onChange={(e) => setForm({ ...form, documento: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
+                    className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
                     required
                   />
                 </div>
 
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                    Contraseña
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Mínimo 6 caracteres"
-                    value={form.contrasena}
-                    onChange={(e) => setForm({ ...form, contrasena: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-white/40 text-xs font-semibold uppercase tracking-wider mb-1.5">
-                    Confirmar contraseña
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Repetí la contraseña"
-                    value={form.confirmar}
-                    onChange={(e) => setForm({ ...form, confirmar: e.target.value })}
-                    className="w-full bg-white/5 border border-white/10 hover:border-white/20 focus:border-orange-500 text-white rounded-xl px-4 py-3 text-sm outline-none transition-all placeholder-white/20"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl px-4 py-3 text-xs font-medium animate-scaleIn">
-                    {error}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="group">
+                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Password</label>
+                    <input
+                      type="password"
+                      placeholder="••••••"
+                      value={form.contrasena}
+                      onChange={(e) => setForm({ ...form, contrasena: e.target.value })}
+                      className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
+                      required
+                    />
                   </div>
-                )}
-
-                {exito && (
-                  <div className="bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl px-4 py-3 text-xs font-medium animate-scaleIn">
-                    {exito}
+                  <div className="group">
+                    <label className="block text-white/30 text-[10px] font-black uppercase tracking-widest mb-2 ml-1">Confirmar</label>
+                    <input
+                      type="password"
+                      placeholder="••••••"
+                      value={form.confirmar}
+                      onChange={(e) => setForm({ ...form, confirmar: e.target.value })}
+                      className="w-full bg-white/[0.04] border border-white/5 focus:border-orange-500/50 text-white rounded-2xl px-4 py-3.5 text-sm outline-none transition-all"
+                      required
+                    />
                   </div>
-                )}
+                </div>
+
+                {error && <p className="text-red-400 text-[10px] font-black text-center uppercase tracking-widest">{error}</p>}
+                {exito && <p className="text-green-400 text-[10px] font-black text-center uppercase tracking-widest">{exito}</p>}
 
                 <button
                   type="submit"
                   disabled={cargando}
-                  className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-orange-500/20 hover:-translate-y-0.5 active:translate-y-0 text-sm tracking-wide"
+                  className="w-full bg-white text-black hover:bg-orange-500 hover:text-white font-black py-4 rounded-2xl transition-all duration-300 text-[11px] uppercase tracking-[0.2em] mt-2"
                 >
-                  {cargando ? 'Creando cuenta...' : 'Crear cuenta'}
+                  {cargando ? 'Procesando...' : 'Confirmar Registro'}
                 </button>
               </form>
 
-              <div className="mt-5 pt-5 border-t border-white/8 text-center">
-                <p className="text-white/30 text-xs mb-3">¿Ya tenés cuenta?</p>
+              <footer className="mt-6 text-center">
                 <button
                   onClick={() => { resetForm(); setVista('login'); }}
-                  className="text-orange-400 hover:text-orange-300 text-sm font-semibold transition-colors"
+                  className="text-white/30 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all"
                 >
-                  ← Iniciar sesión
+                  ← Volver al login
                 </button>
-              </div>
-            </>
+              </footer>
+            </div>
           )}
         </div>
       </div>
