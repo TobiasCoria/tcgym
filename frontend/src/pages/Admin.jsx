@@ -21,30 +21,39 @@ export default function Admin() {
       const [u, t] = await Promise.all([api.get('/usuarios'), api.get('/turnos')]);
       setUsuarios(u.data);
       setTurnos(t.data);
-    } catch {}
-    finally { setCargando(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCargando(false);
+    }
   };
 
   const eliminarUsuario = async (id) => {
-    if (!confirm('¿Seguro?')) return;
+    if (!confirm('¿Seguro que querés eliminar este usuario?')) return;
     try {
       await api.delete('/usuarios/' + id);
       setUsuarios(usuarios.filter(u => u.id !== id));
-    } catch {}
+    } catch (err) {
+      alert('Error al eliminar');
+    }
   };
 
   const cancelarTurno = async (id) => {
     try {
       await api.patch('/turnos/' + id + '/cancelar');
       setTurnos(turnos.map(t => t.id === id ? { ...t, estado: 'cancelado' } : t));
-    } catch {}
+    } catch (err) {
+      alert('Error al cancelar turno');
+    }
   };
 
   const marcarEstado = async (id, estado) => {
     try {
       await api.patch('/turnos/' + id + '/estado', { estado });
       setTurnos(turnos.map(t => t.id === id ? { ...t, estado } : t));
-    } catch {}
+    } catch (err) {
+      alert('Error al actualizar estado');
+    }
   };
 
   const hoy = new Date().toISOString().split('T')[0];
@@ -72,7 +81,7 @@ export default function Admin() {
       </div>
 
       {/* Header */}
-      <div className="relative flex items-center justify-between px-6 py-5 border-b border-white/5 animate-fadeIn">
+      <div className="relative flex items-center justify-between px-6 py-5 border-b border-white/5">
         <div className="flex items-center gap-4">
           <button onClick={() => setMenuAbierto(true)} className="flex flex-col gap-[5px] p-2 rounded-lg hover:bg-white/5 transition-colors group md:hidden">
             <span className="block w-5 h-[2px] bg-white/60 group-hover:bg-white transition-colors" />
@@ -86,17 +95,21 @@ export default function Admin() {
         </div>
 
         {/* Tabs desktop */}
-<div className="hidden md:flex gap-2">
-  {[
-    { key: 'dashboard', label: 'Dashboard' },
-    { key: 'usuarios', label: 'Usuarios (' + usuarios.length + ')' },
-    { key: 'turnos', label: 'Turnos (' + turnosHoy.length + ')' },
-    { key: 'calendario', label: 'Calendario' },        // ← AGREGADO
-  ].map((tab) => (
+        <div className="hidden md:flex gap-2">
+          {[
+            { key: 'dashboard', label: 'Dashboard' },
+            { key: 'usuarios', label: 'Usuarios (' + usuarios.length + ')' },
+            { key: 'turnos', label: 'Turnos (' + turnosHoy.length + ')' },
+            { key: 'calendario', label: 'Calendario' },
+          ].map((tab) => (
             <button
               key={tab.key}
               onClick={() => setSeccion(tab.key)}
-              className={'px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all duration-200 ' + (seccion === tab.key ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25' : 'bg-white/5 text-white/40 hover:text-white border border-white/8')}
+              className={`px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all duration-200 ${
+                seccion === tab.key 
+                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25' 
+                  : 'bg-white/5 text-white/40 hover:text-white border border-white/8'
+              }`}
             >
               {tab.label}
             </button>
@@ -104,7 +117,7 @@ export default function Admin() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button onClick={() => { navigate('/home'); }} className="hidden md:block text-white/40 hover:text-white text-xs font-medium transition-colors">
+          <button onClick={() => navigate('/home')} className="hidden md:block text-white/40 hover:text-white text-xs font-medium transition-colors">
             Ir al Home
           </button>
           <div className="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-orange-500/30">
@@ -113,18 +126,22 @@ export default function Admin() {
         </div>
       </div>
 
-          {/* Tabs mobile */}
-<div className="md:hidden flex gap-2 px-6 py-4">
-  {[
-    { key: 'dashboard', label: 'Dashboard' },
-    { key: 'usuarios', label: 'Usuarios' },
-    { key: 'turnos', label: 'Turnos' },
-    { key: 'calendario', label: 'Calendario' },     // ← AGREGADO
-  ].map((tab) => (
+      {/* Tabs mobile */}
+      <div className="md:hidden flex gap-2 px-6 py-4">
+        {[
+          { key: 'dashboard', label: 'Dashboard' },
+          { key: 'usuarios', label: 'Usuarios' },
+          { key: 'turnos', label: 'Turnos' },
+          { key: 'calendario', label: 'Calendario' },
+        ].map((tab) => (
           <button
             key={tab.key}
             onClick={() => setSeccion(tab.key)}
-            className={'px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all duration-200 ' + (seccion === tab.key ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25' : 'bg-white/5 text-white/40 hover:text-white border border-white/8')}
+            className={`px-4 py-2 rounded-xl font-semibold text-xs uppercase tracking-wider transition-all duration-200 ${
+              seccion === tab.key 
+                ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/25' 
+                : 'bg-white/5 text-white/40 hover:text-white border border-white/8'
+            }`}
           >
             {tab.label}
           </button>
@@ -143,55 +160,69 @@ export default function Admin() {
             {/* DASHBOARD */}
             {seccion === 'dashboard' && (
               <div>
-                {/* Stats grid — 2 cols mobile, 6 cols desktop */}
-                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+                {/* Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-8">
                   {STATS.map((stat, i) => (
-                    <div key={stat.label} className={'animate-fadeIn border border-white/8 rounded-2xl p-5 ' + stat.bg} style={{ animationDelay: i * 0.05 + 's' }}>
-                      <p className={'text-3xl font-bold ' + stat.color}>{stat.valor}</p>
+                    <div key={stat.label} className={`animate-fadeIn border border-white/8 rounded-2xl p-5 ${stat.bg}`} style={{ animationDelay: i * 0.05 + 's' }}>
+                      <p className={`text-3xl font-bold ${stat.color}`}>{stat.valor}</p>
                       <p className="text-white/40 text-xs font-medium uppercase tracking-wider mt-1">{stat.label}</p>
                     </div>
                   ))}
                 </div>
 
-                {/* Tabla desktop / cards mobile */}
-                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-3">Turnos de hoy</p>
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">Turnos de hoy</p>
 
-                {/* Desktop tabla */}
-                <div className="hidden md:block bg-white/5 border border-white/8 rounded-2xl overflow-hidden">
+                {/* === TABLA DESKTOP MEJORADA === */}
+                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-sm">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/8">
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Usuario</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Hora</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Estado</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Acciones</th>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Usuario</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Hora</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Estado</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-white/5">
                       {turnosHoy.length === 0 && (
                         <tr>
-                          <td colSpan={4} className="text-center py-8 text-white/20 text-sm">Sin turnos hoy</td>
+                          <td colSpan={4} className="text-center py-12 text-white/30 text-sm">Sin turnos hoy</td>
                         </tr>
                       )}
-                      {turnosHoy.map((turno, i) => (
-                        <tr key={turno.id} className="border-b border-white/5 hover:bg-white/3 transition-colors" style={{ animationDelay: i * 0.05 + 's' }}>
-                          <td className="px-6 py-4">
-                            <p className="text-white font-semibold text-sm">{turno.nombre} {turno.apellido}</p>
+                      {turnosHoy.map((turno) => (
+                        <tr key={turno.id} className="hover:bg-white/5 transition-all duration-200 group">
+                          <td className="px-8 py-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-inner">
+                                {turno.nombre?.charAt(0)}{turno.apellido?.charAt(0)}
+                              </div>
+                              <p className="font-semibold text-white">{turno.nombre} {turno.apellido}</p>
+                            </div>
                           </td>
-                          <td className="px-6 py-4 text-white/60 text-sm">{turno.hora?.slice(0, 5)}hs</td>
-                          <td className="px-6 py-4">
-                            <span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' : turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400')}>
-                              {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
+                          <td className="px-8 py-5 text-white/70 font-medium">{turno.hora?.slice(0, 5)} hs</td>
+                          <td className="px-8 py-5">
+                            <span className={`inline-flex items-center px-4 py-1.5 rounded-2xl text-xs font-semibold tracking-wide border
+                              ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
+                                turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 
+                                'bg-orange-500/20 text-orange-400 border-orange-500/30'}`}>
+                              {turno.estado === 'completado' ? '✓ Asistió' : 
+                               turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-5">
                             {turno.estado === 'reservado' && (
-                              <div className="flex gap-2">
-                                <button onClick={() => marcarEstado(turno.id, 'completado')} className="bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                              <div className="flex gap-3">
+                                <button 
+                                  onClick={() => marcarEstado(turno.id, 'completado')}
+                                  className="px-5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-2xl transition-all active:scale-95"
+                                >
                                   ✓ Asistió
                                 </button>
-                                <button onClick={() => cancelarTurno(turno.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
-                                  ✕ No asistió
+                                <button 
+                                  onClick={() => cancelarTurno(turno.id)}
+                                  className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium rounded-2xl transition-all active:scale-95"
+                                >
+                                  ✕ Cancelar
                                 </button>
                               </div>
                             )}
@@ -202,27 +233,31 @@ export default function Admin() {
                   </table>
                 </div>
 
-                {/* Mobile cards */}
-                <div className="md:hidden space-y-2">
-                  {turnosHoy.length === 0 && <p className="text-white/20 text-sm text-center py-6">Sin turnos hoy</p>}
-                  {turnosHoy.map((turno, i) => (
-                    <div key={turno.id} className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4" style={{ animationDelay: i * 0.05 + 's' }}>
-                      <div className="flex items-center justify-between mb-3">
+                {/* Mobile cards (mantengo por ahora, pero se pueden mejorar después) */}
+                <div className="md:hidden space-y-3">
+                  {turnosHoy.length === 0 && <p className="text-white/20 text-sm text-center py-8">Sin turnos hoy</p>}
+                  {turnosHoy.map((turno) => (
+                    <div key={turno.id} className="bg-white/5 border border-white/10 rounded-3xl p-5">
+                      <div className="flex justify-between items-start">
                         <div>
-                          <p className="text-white font-semibold text-sm">{turno.nombre} {turno.apellido}</p>
-                          <p className="text-white/30 text-xs mt-0.5">{turno.hora?.slice(0, 5)}hs</p>
+                          <p className="font-semibold text-white">{turno.nombre} {turno.apellido}</p>
+                          <p className="text-white/50 text-sm mt-1">{turno.hora?.slice(0, 5)} hs</p>
                         </div>
-                        <span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' : turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400')}>
-                          {turno.estado}
+                        <span className={`px-4 py-1.5 rounded-2xl text-xs font-medium
+                          ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400' : 
+                            turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400' : 
+                            'bg-orange-500/20 text-orange-400'}`}>
+                          {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                         </span>
                       </div>
+
                       {turno.estado === 'reservado' && (
-                        <div className="flex gap-2">
-                          <button onClick={() => marcarEstado(turno.id, 'completado')} className="flex-1 bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold py-2.5 rounded-xl transition-colors">
+                        <div className="flex gap-3 mt-5">
+                          <button onClick={() => marcarEstado(turno.id, 'completado')} className="flex-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 py-3 rounded-2xl text-sm font-medium transition-colors">
                             ✓ Asistió
                           </button>
-                          <button onClick={() => cancelarTurno(turno.id)} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold py-2.5 rounded-xl transition-colors">
-                            ✕ No asistió
+                          <button onClick={() => cancelarTurno(turno.id)} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-2xl text-sm font-medium transition-colors">
+                            ✕ Cancelar
                           </button>
                         </div>
                       )}
@@ -235,52 +270,57 @@ export default function Admin() {
             {/* USUARIOS */}
             {seccion === 'usuarios' && (
               <div>
-                {/* Desktop tabla */}
-                <div className="hidden md:block bg-white/5 border border-white/8 rounded-2xl overflow-hidden">
+                {/* Desktop tabla mejorada */}
+                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-sm">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/8">
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Usuario</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Documento</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Datos</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Rutina</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Acciones</th>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Usuario</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Documento</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Datos Físicos</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Rutina</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {usuarios.map((u, i) => (
-                        <tr key={u.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0">
+                    <tbody className="divide-y divide-white/5">
+                      {usuarios.map((u) => (
+                        <tr key={u.id} className="hover:bg-white/5 transition-all duration-200">
+                          <td className="px-8 py-5">
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-inner">
                                 {u.nombre.charAt(0)}
                               </div>
                               <div>
-                                <p className="text-white font-semibold text-sm">{u.nombre} {u.apellido}</p>
-                                <p className="text-white/30 text-xs">{u.email}</p>
+                                <p className="font-semibold text-white">{u.nombre} {u.apellido}</p>
+                                <p className="text-white/40 text-sm">{u.email}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-white/60 text-sm">{u.documento}</td>
-                          <td className="px-6 py-4">
-                            <div className="flex gap-2">
-                              {u.peso && <span className="bg-white/5 text-white/40 text-xs px-2 py-1 rounded-lg">{u.peso}kg</span>}
-                              {u.estatura && <span className="bg-white/5 text-white/40 text-xs px-2 py-1 rounded-lg">{u.estatura}cm</span>}
-                              {u.peso && u.estatura && <span className="bg-white/5 text-white/40 text-xs px-2 py-1 rounded-lg">IMC {(u.peso / Math.pow(u.estatura / 100, 2)).toFixed(1)}</span>}
+                          <td className="px-8 py-5 text-white/70">{u.documento}</td>
+                          <td className="px-8 py-5">
+                            <div className="flex flex-wrap gap-2">
+                              {u.peso && <span className="bg-white/5 px-3.5 py-1 rounded-2xl text-xs text-white/70">{u.peso} kg</span>}
+                              {u.estatura && <span className="bg-white/5 px-3.5 py-1 rounded-2xl text-xs text-white/70">{u.estatura} cm</span>}
+                              {u.peso && u.estatura && (
+                                <span className="bg-white/5 px-3.5 py-1 rounded-2xl text-xs text-white/70">
+                                  IMC {(u.peso / Math.pow(u.estatura / 100, 2)).toFixed(1)}
+                                </span>
+                              )}
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-5">
                             {u.rutina_archivo ? (
-                              <a href={'https://tcgym.onrender.com/uploads/' + u.rutina_archivo} target="_blank" rel="noreferrer" className="bg-orange-500/10 text-orange-400 text-xs px-3 py-1 rounded-lg hover:bg-orange-500/20 transition-colors">
+                              <a href={'https://tcgym.onrender.com/uploads/' + u.rutina_archivo} target="_blank" rel="noreferrer" 
+                                 className="bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 px-5 py-2 rounded-2xl text-sm font-medium transition-colors inline-flex items-center gap-2">
                                 Ver rutina →
                               </a>
                             ) : (
-                              <span className="text-white/20 text-xs">Sin rutina</span>
+                              <span className="text-white/30 text-sm">Sin rutina</span>
                             )}
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-5">
                             {u.rol !== 'admin' && (
-                              <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-300 text-xs font-semibold transition-colors">
+                              <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-300 font-medium transition-colors">
                                 Eliminar
                               </button>
                             )}
@@ -291,30 +331,38 @@ export default function Admin() {
                   </table>
                 </div>
 
-                {/* Mobile cards */}
-                <div className="md:hidden space-y-2">
-                  {usuarios.map((u, i) => (
-                    <div key={u.id} className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4 transition-all" style={{ animationDelay: i * 0.05 + 's' }}>
+                {/* Mobile cards usuarios */}
+                <div className="md:hidden space-y-3">
+                  {usuarios.map((u) => (
+                    <div key={u.id} className="bg-white/5 border border-white/10 rounded-3xl p-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0">
+                        <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
                           {u.nombre.charAt(0)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-white font-semibold text-sm">{u.nombre} {u.apellido}</p>
-                          <p className="text-white/30 text-xs truncate mt-0.5">{u.email}</p>
+                          <p className="font-semibold text-white">{u.nombre} {u.apellido}</p>
+                          <p className="text-white/40 text-sm truncate">{u.email}</p>
                         </div>
                         {u.rol !== 'admin' && (
-                          <button onClick={() => eliminarUsuario(u.id)} className="text-white/20 hover:text-red-400 transition-colors text-sm font-bold shrink-0">x</button>
+                          <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-300 text-xl font-light">×</button>
                         )}
                       </div>
-                      <div className="flex flex-wrap gap-2 mt-3">
-                        {u.peso && <span className="bg-white/5 text-white/40 text-xs px-3 py-1 rounded-full">{u.peso} kg</span>}
-                        {u.estatura && <span className="bg-white/5 text-white/40 text-xs px-3 py-1 rounded-full">{u.estatura} cm</span>}
-                        {u.peso && u.estatura && <span className="bg-white/5 text-white/40 text-xs px-3 py-1 rounded-full">IMC {(u.peso / Math.pow(u.estatura / 100, 2)).toFixed(1)}</span>}
+
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        {u.peso && <span className="bg-white/5 px-4 py-1.5 rounded-2xl text-xs">{u.peso} kg</span>}
+                        {u.estatura && <span className="bg-white/5 px-4 py-1.5 rounded-2xl text-xs">{u.estatura} cm</span>}
+                        {u.peso && u.estatura && (
+                          <span className="bg-white/5 px-4 py-1.5 rounded-2xl text-xs">
+                            IMC {(u.peso / Math.pow(u.estatura / 100, 2)).toFixed(1)}
+                          </span>
+                        )}
                         {u.rutina_archivo ? (
-                          <a href={'https://tcgym.onrender.com/uploads/' + u.rutina_archivo} target="_blank" rel="noreferrer" className="bg-orange-500/10 text-orange-400 text-xs px-3 py-1 rounded-full">Ver rutina</a>
+                          <a href={'https://tcgym.onrender.com/uploads/' + u.rutina_archivo} target="_blank" rel="noreferrer" 
+                             className="bg-orange-500/10 text-orange-400 px-4 py-1.5 rounded-2xl text-xs font-medium">
+                            Ver rutina
+                          </a>
                         ) : (
-                          <span className="bg-white/5 text-white/20 text-xs px-3 py-1 rounded-full">Sin rutina</span>
+                          <span className="bg-white/5 text-white/40 px-4 py-1.5 rounded-2xl text-xs">Sin rutina</span>
                         )}
                       </div>
                     </div>
@@ -326,39 +374,50 @@ export default function Admin() {
             {/* TURNOS */}
             {seccion === 'turnos' && (
               <div>
-                <div className="hidden md:block bg-white/5 border border-white/8 rounded-2xl overflow-hidden">
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">Todos los turnos de hoy</p>
+                
+                {/* Reutilizamos la misma tabla mejorada del dashboard */}
+                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-sm">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-white/8">
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Usuario</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Hora</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Estado</th>
-                        <th className="text-left px-6 py-4 text-white/40 text-xs font-semibold uppercase tracking-wider">Acciones</th>
+                      <tr className="border-b border-white/10">
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Usuario</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Hora</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Estado</th>
+                        <th className="text-left px-8 py-5 text-white/50 text-xs font-semibold uppercase tracking-widest">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-white/5">
                       {turnosHoy.length === 0 && (
-                        <tr><td colSpan={4} className="text-center py-8 text-white/20 text-sm">Sin turnos hoy</td></tr>
+                        <tr><td colSpan={4} className="text-center py-12 text-white/30">Sin turnos hoy</td></tr>
                       )}
-                      {turnosHoy.map((turno, i) => (
-                        <tr key={turno.id} className="border-b border-white/5 hover:bg-white/3 transition-colors">
-                          <td className="px-6 py-4">
-                            <p className="text-white font-semibold text-sm">{turno.nombre} {turno.apellido}</p>
+                      {turnosHoy.map((turno) => (
+                        <tr key={turno.id} className="hover:bg-white/5 transition-all duration-200 group">
+                          <td className="px-8 py-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-sm shadow-inner">
+                                {turno.nombre?.charAt(0)}{turno.apellido?.charAt(0)}
+                              </div>
+                              <p className="font-semibold text-white">{turno.nombre} {turno.apellido}</p>
+                            </div>
                           </td>
-                          <td className="px-6 py-4 text-white/60 text-sm">{turno.hora?.slice(0, 5)}hs</td>
-                          <td className="px-6 py-4">
-                            <span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' : turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400')}>
+                          <td className="px-8 py-5 text-white/70 font-medium">{turno.hora?.slice(0, 5)} hs</td>
+                          <td className="px-8 py-5">
+                            <span className={`inline-flex items-center px-4 py-1.5 rounded-2xl text-xs font-semibold tracking-wide border
+                              ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
+                                turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400 border-red-500/30' : 
+                                'bg-orange-500/20 text-orange-400 border-orange-500/30'}`}>
                               {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-8 py-5">
                             {turno.estado === 'reservado' && (
-                              <div className="flex gap-2">
-                                <button onClick={() => marcarEstado(turno.id, 'completado')} className="bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                              <div className="flex gap-3">
+                                <button onClick={() => marcarEstado(turno.id, 'completado')} className="px-5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-sm font-medium rounded-2xl transition-all active:scale-95">
                                   ✓ Asistió
                                 </button>
-                                <button onClick={() => cancelarTurno(turno.id)} className="bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors">
-                                  ✕ No asistió
+                                <button onClick={() => cancelarTurno(turno.id)} className="px-5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium rounded-2xl transition-all active:scale-95">
+                                  ✕ Cancelar
                                 </button>
                               </div>
                             )}
@@ -369,27 +428,24 @@ export default function Admin() {
                   </table>
                 </div>
 
-                <div className="md:hidden space-y-2">
-                  {turnosHoy.length === 0 && <p className="text-white/20 text-sm text-center py-6">Sin turnos hoy</p>}
-                  {turnosHoy.map((turno, i) => (
-                    <div key={turno.id} className="animate-fadeIn bg-white/5 border border-white/8 rounded-2xl px-5 py-4" style={{ animationDelay: i * 0.05 + 's' }}>
-                      <div className="flex items-center justify-between mb-3">
+                {/* Mobile cards para Turnos */}
+                <div className="md:hidden space-y-3">
+                  {turnosHoy.length === 0 && <p className="text-white/20 text-sm text-center py-8">Sin turnos hoy</p>}
+                  {turnosHoy.map((turno) => (
+                    <div key={turno.id} className="bg-white/5 border border-white/10 rounded-3xl p-5">
+                      <div className="flex justify-between">
                         <div>
-                          <p className="text-white font-semibold text-sm">{turno.nombre} {turno.apellido}</p>
-                          <p className="text-white/30 text-xs mt-0.5">{turno.hora?.slice(0, 5)}hs</p>
+                          <p className="font-semibold">{turno.nombre} {turno.apellido}</p>
+                          <p className="text-white/50 text-sm mt-1">{turno.hora?.slice(0, 5)} hs</p>
                         </div>
-                        <span className={'px-3 py-1 rounded-full text-xs font-semibold ' + (turno.estado === 'reservado' ? 'bg-orange-500/15 text-orange-400' : turno.estado === 'completado' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400')}>
-                          {turno.estado}
+                        <span className={`px-4 py-1 rounded-2xl text-xs font-medium ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400' : turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                          {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                         </span>
                       </div>
                       {turno.estado === 'reservado' && (
-                        <div className="flex gap-2">
-                          <button onClick={() => marcarEstado(turno.id, 'completado')} className="flex-1 bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold py-2.5 rounded-xl transition-colors">
-                            ✓ Asistió
-                          </button>
-                          <button onClick={() => cancelarTurno(turno.id)} className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold py-2.5 rounded-xl transition-colors">
-                            ✕ No asistió
-                          </button>
+                        <div className="grid grid-cols-2 gap-3 mt-5">
+                          <button onClick={() => marcarEstado(turno.id, 'completado')} className="py-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-2xl text-sm font-medium">✓ Asistió</button>
+                          <button onClick={() => cancelarTurno(turno.id)} className="py-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl text-sm font-medium">✕ Cancelar</button>
                         </div>
                       )}
                     </div>
@@ -397,17 +453,16 @@ export default function Admin() {
                 </div>
               </div>
             )}
-          </div>
-        )}
-                    {/* CALENDARIO */}
+
+            {/* CALENDARIO */}
             {seccion === 'calendario' && (
               <div>
-                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">
-                  Calendario de Turnos
-                </p>
+                <p className="text-white/30 text-xs font-semibold uppercase tracking-widest mb-4">Calendario de Turnos</p>
                 <CalendarioTurnos />
               </div>
             )}
+          </div>
+        )}
       </div>
 
       {/* Menú lateral mobile */}
@@ -429,6 +484,7 @@ export default function Admin() {
                 { label: 'Dashboard', key: 'dashboard' },
                 { label: 'Usuarios', key: 'usuarios' },
                 { label: 'Turnos', key: 'turnos' },
+                { label: 'Calendario', key: 'calendario' },
               ].map((item) => (
                 <button key={item.key} onClick={() => { setSeccion(item.key); setMenuAbierto(false); }} className="w-full text-left px-6 py-4 text-white/50 hover:text-white hover:bg-white/5 transition-all text-sm font-medium">
                   {item.label}
