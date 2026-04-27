@@ -75,7 +75,6 @@ export default function Admin() {
   return (
     <div className="min-h-screen bg-[#0f1117] text-white overflow-hidden">
 
-      {/* Background glows */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-100px] left-[-80px] w-[350px] h-[350px] bg-orange-500/8 rounded-full blur-[100px] animate-glow-pulse" />
         <div className="absolute bottom-[-80px] right-[-60px] w-[250px] h-[250px] bg-orange-500/6 rounded-full blur-[80px] animate-glow-pulse" style={{animationDelay:'1.2s'}} />
@@ -106,10 +105,10 @@ export default function Admin() {
             <button
               key={tab.key}
               onClick={() => setSeccion(tab.key)}
-              className={`px-5 py-2.5 rounded-2xl font-semibold text-sm transition-all duration-200 ${
+              className={`px-6 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 ${
                 seccion === tab.key 
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/30' 
-                  : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
+                  ? 'bg-orange-500 text-white shadow-xl shadow-orange-500/40' 
+                  : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/10 hover:border-white/20'
               }`}
             >
               {tab.label}
@@ -117,11 +116,11 @@ export default function Admin() {
           ))}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button onClick={() => navigate('/home')} className="hidden md:block text-white/50 hover:text-white text-sm transition-colors">
             Ir al Home
           </button>
-          <div className="w-9 h-9 bg-orange-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg">
+          <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg">
             {usuario?.nombre?.charAt(0).toUpperCase()}
           </div>
         </div>
@@ -138,9 +137,9 @@ export default function Admin() {
           <button
             key={tab.key}
             onClick={() => setSeccion(tab.key)}
-            className={`px-4 py-2 rounded-2xl font-medium text-sm transition-all ${
+            className={`flex-1 py-3 rounded-2xl font-medium text-sm transition-all ${
               seccion === tab.key 
-                ? 'bg-orange-500 text-white' 
+                ? 'bg-orange-500 text-white shadow-md' 
                 : 'bg-white/5 text-white/60 hover:bg-white/10'
             }`}
           >
@@ -149,74 +148,76 @@ export default function Admin() {
         ))}
       </div>
 
-      {/* Contenido */}
-      <div className="relative px-6 pb-12 md:max-w-6xl md:mx-auto pt-6">
+      {/* Contenido Principal */}
+      <div className="relative px-6 pb-12 md:max-w-6xl md:mx-auto pt-8">
         {cargando ? (
           <div className="flex justify-center py-20">
             <div className="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div>
+          <div className="space-y-12">
 
             {/* DASHBOARD */}
             {seccion === 'dashboard' && (
               <div>
                 <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-10">
                   {STATS.map((stat, i) => (
-                    <div key={i} className={`rounded-3xl p-6 border border-white/10 ${stat.bg} transition-all hover:scale-105`}>
-                      <p className={`text-4xl font-bold ${stat.color}`}>{stat.valor}</p>
-                      <p className="text-white/50 text-sm mt-2 tracking-wide">{stat.label}</p>
+                    <div key={i} className={`rounded-3xl p-6 border border-white/10 ${stat.bg} hover:border-orange-500/30 transition-all hover:-translate-y-1`}>
+                      <p className={`text-4xl font-bold tracking-tighter ${stat.color}`}>{stat.valor}</p>
+                      <p className="text-white/50 text-sm mt-3 tracking-widest">{stat.label}</p>
                     </div>
                   ))}
                 </div>
 
-                <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-medium">Turnos de Hoy</p>
+                <p className="text-white/40 text-xs uppercase tracking-[2px] mb-5 font-medium">TURNOS DE HOY</p>
 
-                {/* Tabla Premium - Turnos Hoy */}
-                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+                {/* Tabla Premium */}
+                <div className="hidden md:block bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Usuario</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Hora</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Estado</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Acciones</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">USUARIO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">HORA</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">ESTADO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">ACCIONES</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
                       {turnosHoy.length === 0 ? (
-                        <tr><td colSpan={4} className="text-center py-16 text-white/30">No hay turnos para hoy</td></tr>
+                        <tr><td colSpan={4} className="text-center py-20 text-white/30">No hay turnos programados para hoy</td></tr>
                       ) : (
                         turnosHoy.map((turno) => (
-                          <tr key={turno.id} className="hover:bg-white/5 transition-colors group">
-                            <td className="px-8 py-6">
+                          <tr key={turno.id} className="hover:bg-white/5 group transition-all duration-200">
+                            <td className="px-9 py-6">
                               <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">
+                                <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-inner">
                                   {turno.nombre?.[0]}{turno.apellido?.[0]}
                                 </div>
-                                <div>
-                                  <p className="font-semibold text-white">{turno.nombre} {turno.apellido}</p>
-                                </div>
+                                <div className="font-semibold text-white">{turno.nombre} {turno.apellido}</div>
                               </div>
                             </td>
-                            <td className="px-8 py-6 text-white/70 font-medium">{turno.hora?.slice(0,5)} hs</td>
-                            <td className="px-8 py-6">
-                              <span className={`px-5 py-2 rounded-2xl text-sm font-medium inline-block
-                                ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400' :
-                                  turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400' :
-                                  'bg-orange-500/20 text-orange-400'}`}>
+                            <td className="px-9 py-6 text-lg font-medium text-white/80">{turno.hora?.slice(0,5)} <span className="text-xs text-white/50">hs</span></td>
+                            <td className="px-9 py-6">
+                              <span className={`inline-block px-6 py-2 rounded-2xl text-sm font-medium
+                                ${turno.estado === 'completado' ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30' : 
+                                  turno.estado === 'cancelado' ? 'bg-red-500/15 text-red-400 border border-red-500/30' : 
+                                  'bg-orange-500/15 text-orange-400 border border-orange-500/30'}`}>
                                 {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                               </span>
                             </td>
-                            <td className="px-8 py-6">
+                            <td className="px-9 py-6">
                               {turno.estado === 'reservado' && (
                                 <div className="flex gap-3">
-                                  <button onClick={() => marcarEstado(turno.id, 'completado')} 
-                                    className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-2xl text-sm font-medium transition-all">
+                                  <button 
+                                    onClick={() => marcarEstado(turno.id, 'completado')}
+                                    className="px-7 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-2xl text-sm font-medium transition-all active:scale-95"
+                                  >
                                     ✓ Asistió
                                   </button>
-                                  <button onClick={() => cancelarTurno(turno.id)} 
-                                    className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl text-sm font-medium transition-all">
+                                  <button 
+                                    onClick={() => cancelarTurno(turno.id)}
+                                    className="px-7 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl text-sm font-medium transition-all active:scale-95"
+                                  >
                                     ✕ Cancelar
                                   </button>
                                 </div>
@@ -231,42 +232,43 @@ export default function Admin() {
               </div>
             )}
 
-            {/* USUARIOS - Tabla Premium */}
+            {/* USUARIOS */}
             {seccion === 'usuarios' && (
               <div>
-                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+                <p className="text-white/40 text-xs uppercase tracking-[2px] mb-5 font-medium">LISTA DE USUARIOS</p>
+                <div className="hidden md:block bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Usuario</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Documento</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Datos Físicos</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Rutina</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Acciones</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">USUARIO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">DOCUMENTO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">DATOS FÍSICOS</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">RUTINA</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">ACCIONES</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
                       {usuarios.map((u) => (
-                        <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                          <td className="px-8 py-6">
+                        <tr key={u.id} className="hover:bg-white/5 transition-all group">
+                          <td className="px-9 py-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
+                              <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-inner">
                                 {u.nombre?.charAt(0)}
                               </div>
                               <div>
-                                <p className="font-semibold">{u.nombre} {u.apellido}</p>
+                                <p className="font-semibold text-white">{u.nombre} {u.apellido}</p>
                                 <p className="text-white/50 text-sm">{u.email}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-8 py-6 text-white/70">{u.documento}</td>
-                          <td className="px-8 py-6">
-                            <div className="flex gap-2">
-                              {u.peso && <span className="bg-white/10 px-4 py-1.5 rounded-2xl text-sm">{u.peso}kg</span>}
-                              {u.estatura && <span className="bg-white/10 px-4 py-1.5 rounded-2xl text-sm">{u.estatura}cm</span>}
+                          <td className="px-9 py-6 text-white/70 font-medium">{u.documento}</td>
+                          <td className="px-9 py-6">
+                            <div className="flex gap-3">
+                              {u.peso && <span className="bg-white/10 px-4 py-2 rounded-2xl text-sm">{u.peso} kg</span>}
+                              {u.estatura && <span className="bg-white/10 px-4 py-2 rounded-2xl text-sm">{u.estatura} cm</span>}
                             </div>
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-9 py-6">
                             {u.rutina_archivo ? (
                               <a href={`https://tcgym.onrender.com/uploads/${u.rutina_archivo}`} target="_blank" rel="noreferrer" 
                                  className="text-orange-400 hover:text-orange-300 font-medium">Ver rutina →</a>
@@ -274,9 +276,9 @@ export default function Admin() {
                               <span className="text-white/40">Sin rutina</span>
                             )}
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-9 py-6">
                             {u.rol !== 'admin' && (
-                              <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-500">Eliminar</button>
+                              <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-500 font-medium">Eliminar</button>
                             )}
                           </td>
                         </tr>
@@ -290,42 +292,42 @@ export default function Admin() {
             {/* TURNOS */}
             {seccion === 'turnos' && (
               <div>
-                <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-medium">Turnos de Hoy</p>
-                <div className="hidden md:block bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+                <p className="text-white/40 text-xs uppercase tracking-[2px] mb-5 font-medium">TURNOS DE HOY</p>
+                <div className="hidden md:block bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl overflow-hidden">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-white/10">
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Usuario</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Hora</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Estado</th>
-                        <th className="text-left px-8 py-6 text-white/50 text-sm font-semibold">Acciones</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">USUARIO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">HORA</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">ESTADO</th>
+                        <th className="text-left px-9 py-6 text-white/60 text-sm font-semibold tracking-wider">ACCIONES</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/10">
                       {turnosHoy.map((turno) => (
-                        <tr key={turno.id} className="hover:bg-white/5 transition-colors">
-                          <td className="px-8 py-6">
+                        <tr key={turno.id} className="hover:bg-white/5 transition-all group">
+                          <td className="px-9 py-6">
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center text-white font-bold">
+                              <div className="w-11 h-11 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center text-white font-bold text-lg">
                                 {turno.nombre?.[0]}{turno.apellido?.[0]}
                               </div>
-                              <p className="font-semibold">{turno.nombre} {turno.apellido}</p>
+                              <p className="font-semibold text-white">{turno.nombre} {turno.apellido}</p>
                             </div>
                           </td>
-                          <td className="px-8 py-6 text-white/70 font-medium">{turno.hora?.slice(0,5)} hs</td>
-                          <td className="px-8 py-6">
-                            <span className={`px-5 py-2 rounded-2xl text-sm font-medium
-                              ${turno.estado === 'completado' ? 'bg-emerald-500/20 text-emerald-400' : 
-                                turno.estado === 'cancelado' ? 'bg-red-500/20 text-red-400' : 
-                                'bg-orange-500/20 text-orange-400'}`}>
+                          <td className="px-9 py-6 text-lg font-medium text-white/80">{turno.hora?.slice(0,5)} hs</td>
+                          <td className="px-9 py-6">
+                            <span className={`inline-block px-6 py-2 rounded-2xl text-sm font-medium border
+                              ${turno.estado === 'completado' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : 
+                                turno.estado === 'cancelado' ? 'bg-red-500/15 text-red-400 border-red-500/30' : 
+                                'bg-orange-500/15 text-orange-400 border-orange-500/30'}`}>
                               {turno.estado === 'completado' ? '✓ Asistió' : turno.estado === 'cancelado' ? '✕ Cancelado' : 'Reservado'}
                             </span>
                           </td>
-                          <td className="px-8 py-6">
+                          <td className="px-9 py-6">
                             {turno.estado === 'reservado' && (
                               <div className="flex gap-3">
-                                <button onClick={() => marcarEstado(turno.id, 'completado')} className="px-6 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-2xl text-sm">✓ Asistió</button>
-                                <button onClick={() => cancelarTurno(turno.id)} className="px-6 py-2.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-2xl text-sm">✕ Cancelar</button>
+                                <button onClick={() => marcarEstado(turno.id, 'completado')} className="px-7 py-2.5 bg-emerald-500/10 hover:bg-emerald-500/25 text-emerald-400 rounded-2xl text-sm font-medium transition-all">✓ Asistió</button>
+                                <button onClick={() => cancelarTurno(turno.id)} className="px-7 py-2.5 bg-red-500/10 hover:bg-red-500/25 text-red-400 rounded-2xl text-sm font-medium transition-all">✕ Cancelar</button>
                               </div>
                             )}
                           </td>
@@ -340,7 +342,7 @@ export default function Admin() {
             {/* CALENDARIO */}
             {seccion === 'calendario' && (
               <div>
-                <p className="text-white/40 text-xs uppercase tracking-widest mb-4 font-medium">Calendario</p>
+                <p className="text-white/40 text-xs uppercase tracking-[2px] mb-5 font-medium">CALENDARIO DE TURNOS</p>
                 <CalendarioTurnos />
               </div>
             )}
@@ -349,11 +351,11 @@ export default function Admin() {
         )}
       </div>
 
-      {/* Menú móvil */}
+      {/* Menú móvil (mantengo el tuyo original) */}
       {menuAbierto && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          <div className="flex-1 bg-black/70" onClick={() => setMenuAbierto(false)} />
-          <div className="w-72 bg-[#0f1117] h-full flex flex-col">
+          <div className="flex-1 bg-black/70 backdrop-blur-sm" onClick={() => setMenuAbierto(false)} />
+          <div className="w-72 bg-[#0f1117] border-l border-white/8 h-full flex flex-col animate-slideInRight">
             {/* ... tu menú móvil actual ... */}
           </div>
         </div>
