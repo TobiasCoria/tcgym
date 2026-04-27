@@ -137,63 +137,71 @@ export default function Admin() {
           </div>
         )}
 
-        {seccion === 'usuarios' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-8">Usuarios</h2>
-            <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left px-8 py-5 text-white/50">Usuario</th>
-                    <th className="text-left px-8 py-5 text-white/50">Email</th>
-                    <th className="text-left px-8 py-5 text-white/50">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {usuarios.map(u => (
-                    <tr key={u.id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-8 py-5">{u.nombre} {u.apellido}</td>
-                      <td className="px-8 py-5 text-white/70">{u.email}</td>
-                      <td className="px-8 py-5">
-                        <button onClick={() => eliminarUsuario(u.id)} className="text-red-400 hover:text-red-500">Eliminar</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {/* TABLA DE PRUEBA - Debería verse diferente */}
+<div className="hidden md:block bg-white/5 border border-orange-500/30 rounded-3xl overflow-hidden shadow-2xl">
+  <div className="bg-orange-500/10 px-8 py-5 border-b border-orange-500/20">
+    <h3 className="text-orange-400 font-bold text-lg">TABLA NUEVA - ¿Ves el naranja?</h3>
+  </div>
+  <table className="w-full">
+    <thead>
+      <tr className="border-b border-white/10">
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Usuario</th>
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Hora</th>
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Estado</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-white/10">
+      {turnosHoy.length === 0 ? (
+        <tr><td colSpan={3} className="text-center py-20 text-orange-400">No hay turnos hoy (versión nueva)</td></tr>
+      ) : (
+        turnosHoy.map((turno) => (
+          <tr key={turno.id} className="hover:bg-orange-500/10 transition-colors">
+            <td className="px-8 py-6 text-white font-medium">{turno.nombre} {turno.apellido}</td>
+            <td className="px-8 py-6 text-orange-400 font-medium">{turno.hora?.slice(0,5)} hs</td>
+            <td className="px-8 py-6">
+              <span className="bg-orange-500 text-black px-5 py-1 rounded-full text-xs font-bold">
+                NUEVO DISEÑO
+              </span>
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
 
-        {seccion === 'turnos' && (
-          <div>
-            <h2 className="text-2xl font-bold mb-8">Turnos de Hoy</h2>
-            <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left px-8 py-5 text-white/50">Usuario</th>
-                    <th className="text-left px-8 py-5 text-white/50">Hora</th>
-                    <th className="text-left px-8 py-5 text-white/50">Estado</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {turnosHoy.map(turno => (
-                    <tr key={turno.id} className="hover:bg-white/5 transition-colors">
-                      <td className="px-8 py-5">{turno.nombre} {turno.apellido}</td>
-                      <td className="px-8 py-5 text-white/70">{turno.hora?.slice(0,5)} hs</td>
-                      <td className="px-8 py-5">
-                        <span className="px-5 py-1.5 rounded-full text-xs bg-orange-500/20 text-orange-400">
-                          {turno.estado}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+        {/* TABLA DE PRUEBA - Debería verse diferente */}
+<div className="hidden md:block bg-white/5 border border-orange-500/30 rounded-3xl overflow-hidden shadow-2xl">
+  <div className="bg-orange-500/10 px-8 py-5 border-b border-orange-500/20">
+    <h3 className="text-orange-400 font-bold text-lg">TABLA NUEVA - ¿Ves el naranja?</h3>
+  </div>
+  <table className="w-full">
+    <thead>
+      <tr className="border-b border-white/10">
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Usuario</th>
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Hora</th>
+        <th className="text-left px-8 py-6 text-white/70 font-semibold">Estado</th>
+      </tr>
+    </thead>
+    <tbody className="divide-y divide-white/10">
+      {turnosHoy.length === 0 ? (
+        <tr><td colSpan={3} className="text-center py-20 text-orange-400">No hay turnos hoy (versión nueva)</td></tr>
+      ) : (
+        turnosHoy.map((turno) => (
+          <tr key={turno.id} className="hover:bg-orange-500/10 transition-colors">
+            <td className="px-8 py-6 text-white font-medium">{turno.nombre} {turno.apellido}</td>
+            <td className="px-8 py-6 text-orange-400 font-medium">{turno.hora?.slice(0,5)} hs</td>
+            <td className="px-8 py-6">
+              <span className="bg-orange-500 text-black px-5 py-1 rounded-full text-xs font-bold">
+                NUEVO DISEÑO
+              </span>
+            </td>
+          </tr>
+        ))
+      )}
+    </tbody>
+  </table>
+</div>
 
         {seccion === 'calendario' && <CalendarioTurnos />}
 
